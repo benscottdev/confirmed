@@ -1,12 +1,12 @@
 import { registerRootComponent } from "expo";
-import { MyContextProvider } from "./context/Context";
+import { DataContextProvider } from "./context/DataContext";
 import App from "./App";
 
 function Root() {
 	return (
-		<MyContextProvider>
+		<DataContextProvider>
 			<App />
-		</MyContextProvider>
+		</DataContextProvider>
 	);
 }
 

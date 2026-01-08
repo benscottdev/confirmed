@@ -1,30 +1,16 @@
-import { useEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import Home from "../screens/Home";
 import CreateNew from "../screens/CreateNew";
 import History from "../screens/History";
 import Settings from "../screens/Settings";
-import { getData } from "../localStorage/getData";
+import { DataContext } from "../context/DataContext";
+import { useContext } from "react";
 
 const Tab = createBottomTabNavigator();
 
 export default function Navigation() {
-	const [storedData, setStoredData] = useState(null);
-	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const fetchedData = await getData();
-				if (fetchedData) {
-					setStoredData(fetchedData);
-				}
-			} catch (e) {
-				console.error("Error fetching data:", e);
-			}
-		};
-
-		fetchData();
-	}, []);
+	const context = useContext(DataContext);
 
 	return (
 		<Tab.Navigator
@@ -38,7 +24,8 @@ export default function Navigation() {
 					paddingTop: 10,
 					backgroundColor: "transparent",
 					position: "absolute",
-					borderTopWidth: 0.5,
+					borderTopWidth: 0,
+					borderColor: context.themeColors.tertiaryColor,
 					elevation: 0,
 					shadowBackground: 0,
 				},
@@ -54,7 +41,7 @@ export default function Navigation() {
 						iconName = focused ? "grid" : "grid-outline";
 						iconSize = 22;
 					} else if (route.name === "Create New") {
-						iconName = focused ? "create" : "create-outline";
+						iconName = focused ? "add" : "add-outline";
 						iconSize = 26;
 					} else if (route.name === "History") {
 						iconName = focused ? "list" : "list-outline";
@@ -68,7 +55,7 @@ export default function Navigation() {
 			})}>
 			<Tab.Screen name="Home" component={Home} />
 			<Tab.Screen name="Create New" component={CreateNew} />
-			<Tab.Screen name="History" component={History} storedData={storedData} />
+			<Tab.Screen name="History" component={History} />
 			<Tab.Screen name="Settings" component={Settings} />
 		</Tab.Navigator>
 	);

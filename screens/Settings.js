@@ -2,17 +2,14 @@ import { View, Button } from "react-native";
 import { useContext } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createNewConfirmation } from "../localStorage/createNewConfirmation";
-import { clearStorage } from "../localStorage/clearStorage";
-import { removeConfirmation } from "../localStorage/removeConfirmation";
-import { changeTheme } from "../localStorage/changeTheme";
-import { MyContext } from "../context/Context";
+import { DataContext } from "../context/DataContext";
 
 const STORAGE_KEY = "@confirmed-app-async-data-storage";
 
 export default function Settings() {
 	const insets = useSafeAreaInsets();
-	const { setDefaultData } = useContext(MyContext);
+
+	const { startNewCheck, createNewConfirmation, themeColors, clearStorage, changeTheme, setCompletedById } = useContext(DataContext);
 
 	const logStorage = async () => {
 		let data;
@@ -22,23 +19,20 @@ export default function Settings() {
 			if (appData == null || appData == undefined) {
 				console.log("'" + STORAGE_KEY + "'" + " contains no data");
 			}
-
-			// console.log("TOTAL CONFIRMATIONS = " + appData["total-confirmations"]);
-			// console.log("THEME = " + appData["current-theme"]);
-			// console.log("ALL CONFIRMATIONS = " + JSON.stringify(appData["current-confirmations"]));
 			console.log(data ? data : "");
-		} catch (e) {
-			console.error("Issue with logging all data - see Settings.js", e);
-			throw e;
+		} catch (error) {
+			console.error("Issue with logging all data - see Settings.js", error);
+			throw error;
 		}
 	};
 
 	return (
-		<View style={{ paddingTop: insets.top, paddingLeft: 5, paddingRight: 5 }}>
-			<Button title="Add to storage" onPress={() => createNewConfirmation("test")}></Button>
-			<Button title="Clear storage" onPress={() => clearStorage()}></Button>
-			<Button title="Remove Confirmation" onPress={() => removeConfirmation(1767681719786)}></Button>
-			<Button title="Change Theme" onPress={() => changeTheme("dark")}></Button>
+		<View style={{ paddingTop: insets.top, paddingLeft: 5, paddingRight: 5, paddingBottom: 100, height: "100%", backgroundColor: themeColors.backgroundColor }}>
+			<Button title="Create New Confirmation" onPress={() => createNewConfirmation("Front Door")}></Button>
+			<Button title="Delete All" onPress={() => clearStorage()}></Button>
+			<Button title="Change Theme" onPress={() => changeTheme()}></Button>
+			<Button title="Set Confirmed By ID" onPress={() => setCompletedById(1767759489263)}></Button>
+			<Button title="Set all to false" onPress={() => startNewCheck()}></Button>
 			<Button title="LOG ALL DATA" onPress={() => logStorage()}></Button>
 		</View>
 	);
