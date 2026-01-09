@@ -1,39 +1,103 @@
-import { View, Button } from "react-native";
-import { useContext } from "react";
+import { View, StyleSheet, Text, Pressable } from "react-native";
+import { useContext, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DataContext } from "../context/DataContext";
-
-const STORAGE_KEY = "@confirmed-app-async-data-storage";
+import * as Haptics from "expo-haptics";
 
 export default function Settings() {
 	const insets = useSafeAreaInsets();
 
-	const { startNewCheck, createNewConfirmation, themeColors, clearStorage, changeTheme, setCompletedById } = useContext(DataContext);
+	const { themeColors, changeTheme, theme, clearStorage } = useContext(DataContext);
 
-	const logStorage = async () => {
-		let data;
-		try {
-			data = await AsyncStorage.getItem(STORAGE_KEY);
-			const appData = JSON.parse(data);
-			if (appData == null || appData == undefined) {
-				console.log("'" + STORAGE_KEY + "'" + " contains no data");
-			}
-			console.log(data ? data : "");
-		} catch (error) {
-			console.error("Issue with logging all data - see Settings.js", error);
-			throw error;
-		}
+	function RadioButton({ selected }) {
+		return <View style={[radioStyles.outer, selected && styles.outerSelected]}>{selected && <View style={radioStyles.inner} />}</View>;
+	}
+
+	const clearStorageWithHaptics = () => {
+		clearStorage();
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 	};
 
 	return (
 		<View style={{ paddingTop: insets.top, paddingLeft: 5, paddingRight: 5, paddingBottom: 100, height: "100%", backgroundColor: themeColors.backgroundColor }}>
-			<Button title="Create New Confirmation" onPress={() => createNewConfirmation("Front Door")}></Button>
-			<Button title="Delete All" onPress={() => clearStorage()}></Button>
-			<Button title="Change Theme" onPress={() => changeTheme()}></Button>
-			<Button title="Set Confirmed By ID" onPress={() => setCompletedById(1767759489263)}></Button>
-			<Button title="Set all to false" onPress={() => startNewCheck()}></Button>
-			<Button title="LOG ALL DATA" onPress={() => logStorage()}></Button>
+			<Text style={[styles.heading, { color: themeColors.textColor }]}>Settings</Text>
+			<Text style={[styles.settingsSectionHeading, { color: themeColors.textColor }]}>Theme</Text>
+			<View style={[styles.settingsSection, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.backgroundColor }]}>
+				<View>
+					{["light", "dark"].map((option) => (
+						<Pressable key={option} onPress={() => changeTheme(option)} style={[styles.settingsSubSection, { borderColor: themeColors.tertiaryColor, flexDirection: "row", alignItems: "center", borderBottomWidth: option != "dark" ? 1 : 0 }]}>
+							<Text style={[styles.themeText, { color: themeColors.textColor }]}>{option}</Text>
+							<RadioButton selected={theme === option} />
+						</Pressable>
+					))}
+				</View>
+			</View>
+			<Text style={[styles.settingsSectionHeading, { color: themeColors.textColor }]}>Reset</Text>
+			<View style={[styles.settingsSection, { borderColor: themeColors.tertiaryColor }]}>
+				<Pressable onPress={() => clearStorageWithHaptics()} style={({ pressed }) => [styles.settingsSubSection, { flexDirection: "row", alignItems: "center", backgroundColor: pressed ? themeColors.secondaryColor : themeColors.backgroundColor }]}>
+					<Text style={[styles.themeText, { color: themeColors.textColor }]}>Delete all data</Text>
+				</Pressable>
+			</View>
 		</View>
 	);
 }
+
+const styles = StyleSheet.create({
+	heading: {
+		fontFamily: "Helvetica",
+		fontSize: 20,
+		fontWeight: 100,
+		textAlign: "center",
+		padding: 10,
+		marginBottom: 20,
+	},
+	settingsSectionHeading: {
+		marginHorizontal: 10,
+		marginBottom: 5,
+	},
+	settingsSection: {
+		borderRadius: 10,
+		borderWidth: 1,
+		marginBottom: 20,
+		marginHorizontal: 5,
+	},
+	settingsSubSection: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+		paddingVertical: 15,
+		paddingHorizontal: 10,
+		borderRadius: 10,
+	},
+	themeText: {
+		textTransform: "capitalize",
+		fontFamily: "Helvetica",
+		fontWeight: 100,
+		width: "30%",
+		// color:
+	},
+});
+
+const radioStyles = StyleSheet.create({
+	container: {
+		padding: 8,
+	},
+	outer: {
+		width: 16,
+		height: 16,
+		borderRadius: 11,
+		borderWidth: 1,
+		borderColor: "#999",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	outerSelected: {
+		borderColor: "#999",
+	},
+	inner: {
+		width: 10,
+		height: 10,
+		borderRadius: 5,
+		backgroundColor: "#999",
+	},
+});

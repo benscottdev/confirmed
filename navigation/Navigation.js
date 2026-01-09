@@ -17,8 +17,8 @@ export default function Navigation() {
 			screenOptions={({ route }) => ({
 				headerShown: false,
 				tabBarShowLabel: false,
-				tabBarInactiveTintColor: "#c9c9c9",
-				tabBarActiveTintColor: "#9A9A94",
+				tabBarInactiveTintColor: context.themeColors.tertiaryColor,
+				tabBarActiveTintColor: context.themeColors.textColor,
 				tabBarStyle: {
 					height: 85,
 					paddingTop: 10,

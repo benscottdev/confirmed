@@ -1,9 +1,10 @@
-import { View, Text, StyleSheet, TextInput, Pressable, Dimensions, Image } from "react-native";
+import { View, Text, StyleSheet, TextInput, Pressable, Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DataContext } from "../context/DataContext";
 import { useContext, useState } from "react";
 import { FlatGrid } from "react-native-super-grid";
 import { confirmationIcons } from "../components/Icons";
+import * as Haptics from "expo-haptics";
 
 export default function CreateNew() {
 	const insets = useSafeAreaInsets();
@@ -13,14 +14,14 @@ export default function CreateNew() {
 	const [newItemIcon, setNewItemIcon] = useState(null);
 
 	const getItemDimension = () => {
-		if (width < 375) return 130;
-		if (width < 430) return 150;
-		if (width < 600) return 170;
-		return 200;
+		if (width < 375) return 75;
+		if (width < 430) return 75;
+		if (width < 600) return 75;
 	};
 
 	const addNewConfirmation = () => {
 		createNewConfirmation(newItemName, newItemIcon);
+		Haptics.notificationAsync(Haptics.notificationAsync.Warning);
 		setNewItemName(null);
 		setNewItemIcon(null);
 	};
@@ -29,14 +30,16 @@ export default function CreateNew() {
 		<View style={{ paddingTop: insets.top, paddingLeft: 5, paddingRight: 5, paddingBottom: 100, height: "100%", backgroundColor: themeColors.backgroundColor }}>
 			<Text style={[{ color: themeColors.textColor }, styles.heading]}>Create New Confirmation</Text>
 			<View>
-				<Text style={[styles.secondaryHeading, { color: themeColors.textColor }]}>Choose a name</Text>
-				<TextInput value={newItemName} onChangeText={(value) => setNewItemName(value)} placeholder="e.g. Front Door, Shower, Switch" placeholderTextColor={themeColors.tertiaryColor} style={[styles.textInput, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.secondaryColor, color: themeColors.textColor }]} />
+				<Text style={[styles.secondaryHeading, { color: themeColors.textColor }]}>Confirmation title</Text>
+				<TextInput maxLength={16} value={newItemName} onChangeText={(value) => setNewItemName(value)} placeholder="e.g. Front Door, Shower, Switch" placeholderTextColor={themeColors.tertiaryColor} style={[styles.textInput, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.secondaryColor, color: themeColors.textColor }]} />
 				<Text style={[styles.secondaryHeading, { color: themeColors.textColor }]}>Which icon matches best?</Text>
 				<FlatGrid
-					itemDimension={getItemDimension() / 2}
+					scrollEnabled={false}
+					itemDimension={getItemDimension()}
 					data={confirmationIcons}
+					spacing={5}
 					renderItem={({ item }) => (
-						<Pressable onPress={() => setNewItemIcon(item.name)} style={[styles.iconsWrapper, { backgroundColor: themeColors.secondaryColor, borderColor: themeColors.tertiaryColor }]}>
+						<Pressable onPress={() => setNewItemIcon(item.name)} style={[styles.iconsWrapper, { borderColor: newItemIcon == item.name ? themeColors.textColor : themeColors.tertiaryColor, backgroundColor: themeColors.secondaryColor }]}>
 							<item.completeIcon width={32} height={32} fill={themeColors.textColor} />
 						</Pressable>
 					)}
@@ -49,19 +52,13 @@ export default function CreateNew() {
 					style={({ pressed }) => [
 						styles.buttonWrapper,
 						{
-							backgroundColor: pressed ? themeColors.secondaryColor : themeColors.tertiaryColor,
+							backgroundColor: pressed ? "themeColors.secondaryColor" : themeColors.tertiaryColor,
 							borderColor: pressed ? themeColors.tertiaryColor : themeColors.secondaryColor,
-							padding: 12,
-							borderRadius: 8,
 						},
 					]}>
 					<Text style={[styles.button, { color: themeColors.textColor }]}>Create Confirmaton</Text>
 				</Pressable>
 			)}
-
-			{/* DEBUG */}
-			<Text>{newItemName}</Text>
-			<Text>{newItemIcon}</Text>
 		</View>
 	);
 }
@@ -79,7 +76,7 @@ const styles = StyleSheet.create({
 		fontFamily: "Helvetica",
 		fontSize: 16,
 		fontWeight: 100,
-		textAlign: "center",
+		textAlign: "left`",
 		padding: 10,
 		marginTop: 20,
 	},
@@ -87,8 +84,8 @@ const styles = StyleSheet.create({
 	textInput: {
 		paddingVertical: 15,
 		paddingHorizontal: 10,
-		margin: 5,
-		borderWidth: 1,
+		marginHorizontal: 5,
+		borderWidth: 0.5,
 		fontSize: 16,
 		borderRadius: 5,
 	},
@@ -102,5 +99,11 @@ const styles = StyleSheet.create({
 	icon: {
 		aspectRatio: 1,
 		// width: 10,
+	},
+	buttonWrapper: {
+		padding: 12,
+		borderRadius: 8,
+		marginHorizontal: 5,
+		borderWidth: 0.5,
 	},
 });

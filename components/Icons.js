@@ -4,7 +4,7 @@ export const confirmationIcons = [
 	{
 		name: "lock",
 		completeIcon: LockIcon,
-		inCompleteIcon: LockIcon,
+		inCompleteIcon: null,
 	},
 	{
 		name: "switch",

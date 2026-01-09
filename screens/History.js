@@ -1,10 +1,11 @@
-import { useContext, useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, Button } from "react-native";
+import { useContext } from "react";
+import { View, Text, FlatList, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DataContext } from "../context/DataContext";
 
 export default function History() {
 	const insets = useSafeAreaInsets();
+
 	// Grab context via created name
 	const { data, themeColors } = useContext(DataContext);
 
@@ -12,56 +13,62 @@ export default function History() {
 
 	return (
 		<View style={{ paddingTop: insets.top, paddingLeft: 5, paddingRight: 5, paddingBottom: 100, height: "100%", backgroundColor: themeColors.backgroundColor }}>
-			<Text style={[{ color: themeColors.textColor }, styles.heading]}>Previous Confirmations</Text>
-			<FlatList
-				data={historyData}
-				renderItem={({ item }) => (
-					<View title={item.title} keyExtractor={(item) => item.id} style={[{ borderColor: themeColors.tertiaryColor }, styles.listItem]}>
-						<Text style={[{ color: themeColors.textColor }, styles.listTitle]}>{item.title}</Text>
-						<View style={styles.timeStamps}>
-							<Text
-								style={[
-									{
-										color: themeColors.textColor,
-										backgroundColor: themeColors.backgroundColor,
-										borderColor: themeColors.tertiaryColor,
-										borderWidth: 0.5,
-									},
-									styles.info,
-									styles.checked,
-								]}>
-								Confirmed
-							</Text>
-							<Text
-								style={[
-									{
-										color: themeColors.textColor,
-										backgroundColor: themeColors.secondaryColor,
-										borderColor: themeColors.tertiaryColor,
-										borderWidth: 0.5,
-									},
-									styles.info,
-									styles.timeStampText,
-								]}>
-								{item.timeConfirmed}
-							</Text>
-							<Text
-								style={[
-									{
-										color: themeColors.textColor,
-										backgroundColor: themeColors.secondaryColor,
-										borderColor: themeColors.tertiaryColor,
-										borderWidth: 0.5,
-									},
-									styles.info,
-									styles.timeStampText,
-								]}>
-								{item.dateConfirmed}
-							</Text>
+			<Text style={[{ color: themeColors.textColor }, styles.heading]}>Confirmation Log</Text>
+			{data?.["previous-confirmations"].length > 0 ? (
+				<FlatList
+					data={historyData}
+					renderItem={({ item }) => (
+						<View title={item.title} keyExtractor={(item) => item.id} style={[{ borderColor: themeColors.tertiaryColor }, styles.listItem]}>
+							<Text style={[{ color: themeColors.textColor }, styles.listTitle]}>{item.title}</Text>
+							<View style={styles.timeStamps}>
+								<Text
+									style={[
+										{
+											color: themeColors.textColor,
+											backgroundColor: themeColors.backgroundColor,
+											borderColor: themeColors.tertiaryColor,
+											borderWidth: 0.5,
+										},
+										styles.info,
+										styles.checked,
+									]}>
+									Confirmed
+								</Text>
+								<Text
+									style={[
+										{
+											color: themeColors.textColor,
+											backgroundColor: themeColors.secondaryColor,
+											borderColor: themeColors.tertiaryColor,
+											borderWidth: 0.5,
+										},
+										styles.info,
+										styles.timeStampText,
+									]}>
+									{item.timeConfirmed}
+								</Text>
+								<Text
+									style={[
+										{
+											color: themeColors.textColor,
+											backgroundColor: themeColors.secondaryColor,
+											borderColor: themeColors.tertiaryColor,
+											borderWidth: 0.5,
+										},
+										styles.info,
+										styles.timeStampText,
+									]}>
+									{item.dateConfirmed}
+								</Text>
+							</View>
 						</View>
-					</View>
-				)}
-			/>
+					)}
+				/>
+			) : (
+				<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+					<Text style={[styles.nothingToShow, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.backgroundColor, color: themeColors.tertiaryColor }]}>You currently have no confirmation history.</Text>
+				</View>
+			)}
 		</View>
 	);
 }
@@ -101,9 +108,23 @@ const styles = StyleSheet.create({
 		paddingVertical: 3,
 		paddingHorizontal: 6,
 		fontSize: 12,
+		fontFamily: "Helvetica",
 	},
 	checked: {
-		// backgroundColor: "#fff",
+		fontFamily: "Helvetica",
 	},
-	timeStampText: {},
+	timeStampText: {
+		fontFamily: "Helvetica",
+	},
+	nothingToShow: {
+		fontSize: 20,
+		margin: 30,
+		textAlign: "center",
+		fontFamily: "Helvetica",
+		fontWeight: 100,
+		borderWidth: 0.5,
+		paddingHorizontal: 10,
+		paddingVertical: 30,
+		borderRadius: 10,
+	},
 });

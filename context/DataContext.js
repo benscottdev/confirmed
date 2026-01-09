@@ -70,7 +70,7 @@ export function DataContextProvider({ children }) {
 			const newConfirmation = {
 				id: Date.now(),
 				name,
-				icon: null,
+				icon: icon,
 				confirmed: false,
 				timeCreated: getCurrentTime(),
 				dateCreated: getCurrentDate(),
@@ -168,13 +168,10 @@ export function DataContextProvider({ children }) {
 	};
 
 	// Theme Switcher
-	const changeTheme = async () => {
+	const changeTheme = async (newTheme) => {
 		try {
 			// data is already an object, no need to parse
-			const currentTheme = data?.["current-theme"] || "light";
-			const newTheme = currentTheme === "light" ? "dark" : "light";
-
-			const updatedData = {
+			let updatedData = {
 				...data,
 				"current-theme": newTheme,
 			};
@@ -214,15 +211,16 @@ export function DataContextProvider({ children }) {
 	};
 
 	useEffect(() => {
+		// clearStorage();
 		const initializeApp = async () => {
 			const wasInitialized = await initaliseLocalStorage();
 			if (!wasInitialized) {
 				await getData();
 			}
 		};
-
 		initializeApp();
 	}, []);
+
 	const contextValue = useMemo(
 		() => ({
 			data,
