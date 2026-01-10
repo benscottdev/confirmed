@@ -66,7 +66,7 @@ export default function History() {
 				/>
 			) : (
 				<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-					<Text style={[styles.nothingToShow, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.backgroundColor, color: themeColors.tertiaryColor }]}>You currently have no confirmation history.</Text>
+					<Text style={[styles.nothingToShow, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.backgroundColor, color: themeColors.tertiaryColor }]}>You currently have no confirmation history</Text>
 				</View>
 			)}
 		</View>
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
 		fontFamily: "Helvetica",
 	},
 	nothingToShow: {
-		fontSize: 20,
+		fontSize: 16,
 		margin: 30,
 		textAlign: "center",
 		fontFamily: "Helvetica",

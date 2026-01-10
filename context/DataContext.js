@@ -56,6 +56,26 @@ export function DataContextProvider({ children }) {
 		}
 	};
 
+	const deleteById = async (itemId) => {
+		try {
+			// get all current confirmations
+			const currentConfirmations = data?.["current-confirmations"];
+			// search all current confirmations to filter out matching ID
+			const updatedConfirmations = currentConfirmations.filter((item) => item.id !== itemId);
+			const updatedData = {
+				...data,
+				"current-confirmations": updatedConfirmations,
+			};
+			await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
+			setData(updatedData);
+			console.log(`ITEM REMOVED: ${itemId}`);
+			// console.log(`updatedConfirmations: ${JSON.stringify(updatedConfirmations)}`);
+		} catch (error) {
+			console.error("Could not delete by ID - see Context.js", error);
+			throw error;
+		}
+	};
+
 	const createNewConfirmation = async (name, icon) => {
 		try {
 			const currentData = data || {
@@ -231,6 +251,7 @@ export function DataContextProvider({ children }) {
 			setCompletedById,
 			changeTheme,
 			startNewCheck,
+			deleteById,
 		}),
 		[data, theme]
 	);

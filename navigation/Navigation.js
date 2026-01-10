@@ -1,15 +1,19 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import Home from "../screens/Home";
 import CreateNew from "../screens/CreateNew";
 import History from "../screens/History";
 import Settings from "../screens/Settings";
+import { EditConfirmations } from "../screens/EditConfirmations";
 import { DataContext } from "../context/DataContext";
 import { useContext } from "react";
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
-export default function Navigation() {
+// Create a separate component for your tabs
+function TabNavigator() {
 	const context = useContext(DataContext);
 
 	return (
@@ -58,5 +62,15 @@ export default function Navigation() {
 			<Tab.Screen name="History" component={History} />
 			<Tab.Screen name="Settings" component={Settings} />
 		</Tab.Navigator>
+	);
+}
+
+// Main navigation component with Stack
+export default function Navigation() {
+	return (
+		<Stack.Navigator screenOptions={{ headerShown: false }}>
+			<Stack.Screen name="MainTabs" component={TabNavigator} />
+			<Stack.Screen name="EditConfirmations" component={EditConfirmations} />
+		</Stack.Navigator>
 	);
 }

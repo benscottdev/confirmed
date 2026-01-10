@@ -22,7 +22,7 @@ export default function Home() {
 
 	const getIconComponent = (iconName, confirmed) => {
 		const iconData = confirmationIcons.find((icon) => icon.name === iconName);
-		return confirmed ? iconData?.inCompleteIcon : iconData?.completeIcon;
+		return confirmed ? iconData?.incompleteIcon : iconData?.completeIcon;
 	};
 
 	const resetConfirmedHaptics = () => {
@@ -31,10 +31,10 @@ export default function Home() {
 	};
 
 	const checkIfAnyTrue = () => {
-		data?.["current-confirmations"].forEach((item) => {
-			item.confirmed ? setDisableReset(false) : setDisableReset(true);
-		});
+		const hasAnyConfirmed = data?.["current-confirmations"]?.some((item) => item.confirmed);
+		setDisableReset(!hasAnyConfirmed);
 	};
+
 	// Store animations and completion state
 	const animations = useRef({});
 
@@ -100,7 +100,7 @@ export default function Home() {
 						const anim = animations.current[item.id];
 
 						return (
-							<Pressable onPressIn={() => startAnimation(item.id)} onPressOut={() => stopAnimation(item.id)} style={[item.confirmed ? { backgroundColor: themeColors.secondaryColor } : { backgroundColor: themeColors.backgroundColor }, styles.box, item.confirmed ? styles.confirmed : styles.unconfirmed]}>
+							<Pressable onPressIn={() => startAnimation(item.id)} onPressOut={() => stopAnimation(item.id)} style={[{ borderColor: themeColors.tertiaryColor }, item.confirmed ? { backgroundColor: themeColors.secondaryColor } : { backgroundColor: themeColors.backgroundColor }, styles.box, item.confirmed ? styles.confirmed : styles.unconfirmed]}>
 								{item.confirmed == false && (
 									<Animated.View
 										style={[
@@ -122,7 +122,7 @@ export default function Home() {
 
 								<Text style={[{ color: themeColors.textColor }, styles.name]}>{item.name}</Text>
 								{item.confirmed && item.lastConfirmedTime ? <Text style={[{ color: themeColors.textColor, backgroundColor: themeColors.secondaryColor, borderColor: themeColors.tertiaryColor }, styles.confirmedAt]}>Confirmed・{item.lastConfirmedTime}</Text> : null}
-								{!item.confirmed && item.lastConfirmedTime ? <Text style={[{ color: "grey" }, styles.lastConfirmed]}>Last Confirmed・{item.lastConfirmedTime}</Text> : null}
+								{!item.confirmed && item.lastConfirmedTime ? <Text style={[{ color: themeColors.lightTextColor }, styles.lastConfirmed]}>Last Confirmed・{item.lastConfirmedTime}</Text> : null}
 							</Pressable>
 						);
 					}}
@@ -130,7 +130,7 @@ export default function Home() {
 				/>
 			) : (
 				<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-					<Text style={[styles.nothingToShow, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.backgroundColor, color: themeColors.tertiaryColor }]}>You currently have no confirmations, create a new one in the + tab!</Text>
+					<Text style={[styles.nothingToShow, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.backgroundColor, color: themeColors.tertiaryColor }]}>Start creating confirmations in the + tab</Text>
 				</View>
 			)}
 			{data?.["current-confirmations"].length > 0 && !disableReset && (
@@ -180,10 +180,12 @@ const styles = StyleSheet.create({
 		zIndex: 10,
 	},
 	unconfirmed: {
-		boxShadow: "1px 2px 6px rgba(0, 0, 0, 0.3)",
+		borderWidth: 1,
+		boxShadow: "1px 2px 6px rgba(0, 0, 0, 0.2)",
 	},
 	confirmed: {
-		boxShadow: "inset 2px 2px 3px rgba(0,0,0,0.3)",
+		borderWidth: 1,
+		boxShadow: "inset 2px 2px 3px rgba(0,0,0,0.2)",
 	},
 	lastConfirmed: {
 		fontSize: 10,
@@ -210,7 +212,7 @@ const styles = StyleSheet.create({
 		fontFamily: "Helvetica",
 	},
 	nothingToShow: {
-		fontSize: 20,
+		fontSize: 16,
 		margin: 30,
 		textAlign: "center",
 		fontFamily: "Helvetica",

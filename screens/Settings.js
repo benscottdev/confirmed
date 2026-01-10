@@ -1,11 +1,17 @@
-import { View, StyleSheet, Text, Pressable } from "react-native";
+import { View, StyleSheet, Text, Pressable, Button, Dimensions } from "react-native";
 import { useContext, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DataContext } from "../context/DataContext";
 import * as Haptics from "expo-haptics";
+import Modal from "react-native-modal";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Settings() {
 	const insets = useSafeAreaInsets();
+	const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+	const width = Dimensions.get("window").width;
+	const height = Dimensions.get("window").height;
+	const navigation = useNavigation();
 
 	const { themeColors, changeTheme, theme, clearStorage } = useContext(DataContext);
 
@@ -13,9 +19,14 @@ export default function Settings() {
 		return <View style={[radioStyles.outer, selected && styles.outerSelected]}>{selected && <View style={radioStyles.inner} />}</View>;
 	}
 
+	const toggleConfirmModal = () => {
+		setIsConfirmModalVisible(!isConfirmModalVisible);
+	};
+
 	const clearStorageWithHaptics = () => {
 		clearStorage();
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+		setIsConfirmModalVisible(false);
 	};
 
 	return (
@@ -24,7 +35,7 @@ export default function Settings() {
 			<Text style={[styles.settingsSectionHeading, { color: themeColors.textColor }]}>Theme</Text>
 			<View style={[styles.settingsSection, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.backgroundColor }]}>
 				<View>
-					{["light", "dark"].map((option) => (
+					{["automatic", "light", "dark"].map((option) => (
 						<Pressable key={option} onPress={() => changeTheme(option)} style={[styles.settingsSubSection, { borderColor: themeColors.tertiaryColor, flexDirection: "row", alignItems: "center", borderBottomWidth: option != "dark" ? 1 : 0 }]}>
 							<Text style={[styles.themeText, { color: themeColors.textColor }]}>{option}</Text>
 							<RadioButton selected={theme === option} />
@@ -32,12 +43,29 @@ export default function Settings() {
 					))}
 				</View>
 			</View>
-			<Text style={[styles.settingsSectionHeading, { color: themeColors.textColor }]}>Reset</Text>
+			<Text style={[styles.settingsSectionHeading, { color: themeColors.textColor }]}>Edit Confirmations</Text>
 			<View style={[styles.settingsSection, { borderColor: themeColors.tertiaryColor }]}>
-				<Pressable onPress={() => clearStorageWithHaptics()} style={({ pressed }) => [styles.settingsSubSection, { flexDirection: "row", alignItems: "center", backgroundColor: pressed ? themeColors.secondaryColor : themeColors.backgroundColor }]}>
+				<Pressable onPress={() => navigation.navigate("EditConfirmations")} style={({ pressed }) => [styles.settingsSubSection, { borderBottomWidth: 0.5, borderColor: themeColors.tertiaryColor, alignItems: "center", backgroundColor: pressed ? themeColors.secondaryColor : themeColors.backgroundColor }]}>
+					<Text style={[styles.themeText, { color: themeColors.textColor, width: "100%" }]}>Edit selected confirmations</Text>
+				</Pressable>
+				<Pressable onPress={() => toggleConfirmModal()} style={({ pressed }) => [styles.settingsSubSection, { flexDirection: "row", alignItems: "center", backgroundColor: pressed ? themeColors.secondaryColor : themeColors.backgroundColor }]}>
 					<Text style={[styles.themeText, { color: themeColors.textColor }]}>Delete all data</Text>
 				</Pressable>
 			</View>
+			{/* DELETE ALL MODAL */}
+			{isConfirmModalVisible && <View style={[styles.modalBg, { width, height }]}></View>}
+			<Modal style={[styles.modal, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.backgroundColor }]} visible={isConfirmModalVisible}>
+				<Text style={[styles.modalHeading, { color: themeColors.textColor }]}>Are you sure?</Text>
+				<Text style={[styles.modalBody, { color: themeColors.lightTextColor }]}>This will remove all current & past confirmations</Text>
+				<View style={{ flexDirection: "row", justifyContent: "space-evenly", width: "100%", marginTop: 15 }}>
+					<Pressable onPress={() => clearStorageWithHaptics()} style={[styles.modalButton, { borderColor: themeColors.tertiaryColor }]}>
+						<Text style={{ color: themeColors.textColor }}>Confirm</Text>
+					</Pressable>
+					<Pressable onPress={() => toggleConfirmModal()} style={[styles.modalButton, { borderColor: themeColors.tertiaryColor }]}>
+						<Text style={{ color: themeColors.textColor }}>Decline</Text>
+					</Pressable>
+				</View>
+			</Modal>
 		</View>
 	);
 }
@@ -74,7 +102,43 @@ const styles = StyleSheet.create({
 		fontFamily: "Helvetica",
 		fontWeight: 100,
 		width: "30%",
-		// color:
+	},
+	modalBg: {
+		backgroundColor: "rgba(0, 0, 0, 0.75)",
+		position: "absolute",
+		top: 0,
+		left: 0,
+	},
+
+	modal: {
+		minHeight: 20,
+		width: "80%",
+		padding: 20,
+		borderRadius: 10,
+		position: "absolute",
+		top: "50%",
+		left: "45%",
+		transform: 'translate("-50%, -50%")',
+		borderWidth: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		gap: 10,
+	},
+	modalHeading: {
+		textAlign: "center",
+		fontSize: 20,
+	},
+	modalBody: {
+		textAlign: "center",
+		fontSize: 14,
+		fontWeight: 100,
+		maxWidth: "90%",
+	},
+	modalButton: {
+		borderWidth: 1,
+		paddingVertical: 3,
+		paddingHorizontal: 20,
+		borderRadius: 3,
 	},
 });
 

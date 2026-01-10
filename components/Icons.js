@@ -4,42 +4,42 @@ export const confirmationIcons = [
 	{
 		name: "lock",
 		completeIcon: LockIcon,
-		inCompleteIcon: null,
+		incompleteIcon: null,
 	},
 	{
 		name: "switch",
 		completeIcon: LockIcon,
-		inCompleteIcon: LockIcon,
+		incompleteIcon: LockIcon,
 	},
 	{
 		name: "tap",
 		completeIcon: LockIcon,
-		inCompleteIcon: LockIcon,
+		incompleteIcon: LockIcon,
 	},
 	{
 		name: "soap",
 		completeIcon: LockIcon,
-		inCompleteIcon: LockIcon,
+		incompleteIcon: LockIcon,
 	},
 	{
 		name: "brain",
 		completeIcon: LockIcon,
-		inCompleteIcon: LockIcon,
+		incompleteIcon: LockIcon,
 	},
 	{
 		name: "grid",
 		completeIcon: LockIcon,
-		inCompleteIcon: LockIcon,
+		incompleteIcon: LockIcon,
 	},
 	{
 		name: "hazard",
 		completeIcon: LockIcon,
-		inCompleteIcon: LockIcon,
+		incompleteIcon: LockIcon,
 	},
 
 	{
 		name: "misc",
 		completeIcon: LockIcon,
-		inCompleteIcon: LockIcon,
+		incompleteIcon: LockIcon,
 	},
 ];

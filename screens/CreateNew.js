@@ -40,7 +40,7 @@ export default function CreateNew() {
 					spacing={5}
 					renderItem={({ item }) => (
 						<Pressable onPress={() => setNewItemIcon(item.name)} style={[styles.iconsWrapper, { borderColor: newItemIcon == item.name ? themeColors.textColor : themeColors.tertiaryColor, backgroundColor: themeColors.secondaryColor }]}>
-							<item.completeIcon width={32} height={32} fill={themeColors.textColor} />
+							<item.completeIcon width={32} height={32} fill={item.name === newItemIcon ? themeColors.textColor : themeColors.tertiaryColor} />
 						</Pressable>
 					)}
 				/>
