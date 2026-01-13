@@ -13,7 +13,7 @@ export default function Settings() {
 	const height = Dimensions.get("window").height;
 	const navigation = useNavigation();
 
-	const { themeColors, changeTheme, theme, clearStorage } = useContext(DataContext);
+	const { themeColors, changeTheme, theme, clearStorage, resetAll, logAll } = useContext(DataContext);
 
 	function RadioButton({ selected }) {
 		return <View style={[radioStyles.outer, selected && styles.outerSelected]}>{selected && <View style={radioStyles.inner} />}</View>;
@@ -33,10 +33,10 @@ export default function Settings() {
 		<View style={{ paddingTop: insets.top, paddingLeft: 5, paddingRight: 5, paddingBottom: 100, height: "100%", backgroundColor: themeColors.backgroundColor }}>
 			<Text style={[styles.heading, { color: themeColors.textColor }]}>Settings</Text>
 			<Text style={[styles.settingsSectionHeading, { color: themeColors.textColor }]}>Theme</Text>
-			<View style={[styles.settingsSection, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.backgroundColor }]}>
+			<View style={[styles.settingsSection, { borderColor: themeColors.secondaryColor, backgroundColor: themeColors.backgroundColor }]}>
 				<View>
-					{["automatic", "light", "dark"].map((option) => (
-						<Pressable key={option} onPress={() => changeTheme(option)} style={[styles.settingsSubSection, { borderColor: themeColors.tertiaryColor, flexDirection: "row", alignItems: "center", borderBottomWidth: option != "dark" ? 1 : 0 }]}>
+					{["light", "dark"].map((option) => (
+						<Pressable key={option} onPress={() => changeTheme(option)} style={[styles.settingsSubSection, { borderColor: themeColors.secondaryColor, flexDirection: "row", alignItems: "center", borderBottomWidth: option != "dark" ? 1 : 0 }]}>
 							<Text style={[styles.themeText, { color: themeColors.textColor }]}>{option}</Text>
 							<RadioButton selected={theme === option} />
 						</Pressable>
@@ -44,9 +44,9 @@ export default function Settings() {
 				</View>
 			</View>
 			<Text style={[styles.settingsSectionHeading, { color: themeColors.textColor }]}>Edit Confirmations</Text>
-			<View style={[styles.settingsSection, { borderColor: themeColors.tertiaryColor }]}>
-				<Pressable onPress={() => navigation.navigate("EditConfirmations")} style={({ pressed }) => [styles.settingsSubSection, { borderBottomWidth: 0.5, borderColor: themeColors.tertiaryColor, alignItems: "center", backgroundColor: pressed ? themeColors.secondaryColor : themeColors.backgroundColor }]}>
-					<Text style={[styles.themeText, { color: themeColors.textColor, width: "100%" }]}>Edit selected confirmations</Text>
+			<View style={[styles.settingsSection, { borderColor: themeColors.secondaryColor }]}>
+				<Pressable onPress={() => navigation.navigate("EditConfirmations")} style={({ pressed }) => [styles.settingsSubSection, { borderBottomWidth: 0.5, borderColor: themeColors.secondaryColor, alignItems: "center", backgroundColor: pressed ? themeColors.secondaryColor : themeColors.backgroundColor }]}>
+					<Text style={[styles.themeText, { color: themeColors.textColor, width: "100%" }]}>Edit current confirmations</Text>
 				</Pressable>
 				<Pressable onPress={() => toggleConfirmModal()} style={({ pressed }) => [styles.settingsSubSection, { flexDirection: "row", alignItems: "center", backgroundColor: pressed ? themeColors.secondaryColor : themeColors.backgroundColor }]}>
 					<Text style={[styles.themeText, { color: themeColors.textColor }]}>Delete all data</Text>
@@ -54,7 +54,7 @@ export default function Settings() {
 			</View>
 			{/* DELETE ALL MODAL */}
 			{isConfirmModalVisible && <View style={[styles.modalBg, { width, height }]}></View>}
-			<Modal style={[styles.modal, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.backgroundColor }]} visible={isConfirmModalVisible}>
+			<Modal style={[styles.modal, { borderColor: themeColors.secondaryColor, backgroundColor: themeColors.backgroundColor }]} visible={isConfirmModalVisible}>
 				<Text style={[styles.modalHeading, { color: themeColors.textColor }]}>Are you sure?</Text>
 				<Text style={[styles.modalBody, { color: themeColors.lightTextColor }]}>This will remove all current & past confirmations</Text>
 				<View style={{ flexDirection: "row", justifyContent: "space-evenly", width: "100%", marginTop: 15 }}>
@@ -66,6 +66,14 @@ export default function Settings() {
 					</Pressable>
 				</View>
 			</Modal>
+			{/* <Button title="REMOVE ALL DATA" onPress={() => resetAll()}></Button> */}
+			{/* <Button title="Log all Data" onPress={() => logAll()}></Button> */}
+
+			<View style={styles.credits}>
+				<Text style={[styles.creditText, { color: themeColors.secondaryColor }]}>Version 1.0</Text>
+				<Text style={[styles.creditText, { color: themeColors.secondaryColor }]}>Designed and Developed by Ben</Text>
+				<Text style={[styles.creditText, { color: themeColors.secondaryColor }]}>© 2026</Text>
+			</View>
 		</View>
 	);
 }
@@ -139,6 +147,15 @@ const styles = StyleSheet.create({
 		paddingVertical: 3,
 		paddingHorizontal: 20,
 		borderRadius: 3,
+	},
+	credits: {
+		flexDirection: "column",
+	},
+	creditText: {
+		fontSize: 14,
+		textAlign: "center",
+		fontFamily: "Helvetica",
+		fontWeight: 400,
 	},
 });
 

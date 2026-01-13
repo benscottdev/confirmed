@@ -19,7 +19,7 @@ export default function App() {
 		<SafeAreaProvider>
 			<NavigationContainer>
 				{isAppStarting && (
-					<View style={[styles.loader, { backgroundColor: themeColors.tertiaryColor }]}>
+					<View style={[styles.loader, { backgroundColor: themeColors.backgroundColor }]}>
 						<ActivityIndicator />
 					</View>
 				)}

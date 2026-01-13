@@ -6,7 +6,6 @@ import { DataContext } from "../context/DataContext";
 export default function History() {
 	const insets = useSafeAreaInsets();
 
-	// Grab context via created name
 	const { data, themeColors } = useContext(DataContext);
 
 	const historyData = data?.["previous-confirmations"];
@@ -18,15 +17,15 @@ export default function History() {
 				<FlatList
 					data={historyData}
 					renderItem={({ item }) => (
-						<View title={item.title} keyExtractor={(item) => item.id} style={[{ borderColor: themeColors.tertiaryColor }, styles.listItem]}>
+						<View title={item.title} keyExtractor={(item) => item.id} style={[{ borderColor: themeColors.secondaryColor }, styles.listItem]}>
 							<Text style={[{ color: themeColors.textColor }, styles.listTitle]}>{item.title}</Text>
 							<View style={styles.timeStamps}>
 								<Text
 									style={[
 										{
 											color: themeColors.textColor,
-											backgroundColor: themeColors.backgroundColor,
-											borderColor: themeColors.tertiaryColor,
+											backgroundColor: themeColors.tertiaryColor,
+											borderColor: themeColors.secondaryColor,
 											borderWidth: 0.5,
 										},
 										styles.info,
@@ -38,8 +37,8 @@ export default function History() {
 									style={[
 										{
 											color: themeColors.textColor,
-											backgroundColor: themeColors.secondaryColor,
-											borderColor: themeColors.tertiaryColor,
+											backgroundColor: themeColors.backgroundColor,
+											borderColor: themeColors.secondaryColor,
 											borderWidth: 0.5,
 										},
 										styles.info,
@@ -51,8 +50,8 @@ export default function History() {
 									style={[
 										{
 											color: themeColors.textColor,
-											backgroundColor: themeColors.secondaryColor,
-											borderColor: themeColors.tertiaryColor,
+											backgroundColor: themeColors.backgroundColor,
+											borderColor: themeColors.secondaryColor,
 											borderWidth: 0.5,
 										},
 										styles.info,
@@ -65,8 +64,8 @@ export default function History() {
 					)}
 				/>
 			) : (
-				<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-					<Text style={[styles.nothingToShow, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.backgroundColor, color: themeColors.tertiaryColor }]}>You currently have no confirmation history</Text>
+				<View style={styles.nothingToShowContainer}>
+					<Text style={[styles.nothingToShowText, { color: themeColors.tertiaryColor }]}>You currently have no confirmation history</Text>
 				</View>
 			)}
 		</View>
@@ -107,7 +106,7 @@ const styles = StyleSheet.create({
 		borderRadius: 5,
 		paddingVertical: 3,
 		paddingHorizontal: 6,
-		fontSize: 12,
+		fontSize: 13,
 		fontFamily: "Helvetica",
 	},
 	checked: {
@@ -116,15 +115,17 @@ const styles = StyleSheet.create({
 	timeStampText: {
 		fontFamily: "Helvetica",
 	},
-	nothingToShow: {
-		fontSize: 16,
-		margin: 30,
+	nothingToShowContainer: {
+		margin: 5,
+		justifyContent: "center",
+		alignItems: "center",
+		flex: 1,
+	},
+	nothingToShowText: {
+		fontSize: 24,
+		maxWidth: "90%",
 		textAlign: "center",
 		fontFamily: "Helvetica",
 		fontWeight: 100,
-		borderWidth: 0.5,
-		paddingHorizontal: 10,
-		paddingVertical: 30,
-		borderRadius: 10,
 	},
 });

@@ -20,13 +20,13 @@ export const EditConfirmations = () => {
 				renderItem={({ item }) => (
 					<View title={item.title} key={item.id} style={[{ borderColor: themeColors.tertiaryColor }, styles.listItem]}>
 						<Text style={[{ color: themeColors.textColor }, styles.listTitle]}>{item.name}</Text>
-						<Pressable onPress={() => deleteById(item.id)} style={[styles.deleteButton, { borderColor: themeColors.tertiaryColor }]}>
+						<Pressable onPress={() => deleteById(item.id)} style={[styles.deleteButton, { borderColor: themeColors.secondaryColor, backgroundColor: themeColors.tertiaryColor }]}>
 							<Text style={{ color: themeColors.textColor }}>Delete</Text>
 						</Pressable>
 					</View>
 				)}
 			/>
-			<Pressable onPress={() => navigation.goBack()} style={[styles.backButton, { borderColor: themeColors.tertiaryColor }]}>
+			<Pressable onPress={() => navigation.goBack()} style={[styles.backButton, { borderColor: themeColors.secondaryColor, backgroundColor: themeColors.tertiaryColor }]}>
 				<Text style={[styles.deleteButtonText, { textAlign: "center", color: themeColors.textColor }]}>Back</Text>
 			</Pressable>
 		</View>

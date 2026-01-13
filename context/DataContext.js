@@ -3,7 +3,7 @@ import { createContext, useState, useMemo, useEffect } from "react";
 import { getCurrentDate } from "../functions/getCurrentDate";
 import { getCurrentTime } from "../functions/getCurrentTime";
 import { lightTheme, darkTheme } from "../components/Themes";
-
+import { useColorScheme } from "react-native";
 export const DataContext = createContext();
 
 const STORAGE_KEY = "@confirmed-app-async-data-storage";
@@ -19,6 +19,7 @@ export function DataContextProvider({ children }) {
 			// Only initialize if storage is empty (first time user)
 			if (checkStorage === null) {
 				const initialData = {
+					// "tutorial-seen": false,
 					"current-theme": "light",
 					"current-confirmation-count": 0,
 					"previous-confirmation-count": 0,
@@ -29,6 +30,7 @@ export function DataContextProvider({ children }) {
 				await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(initialData));
 				setData(initialData);
 				setTheme("light");
+				setHasTutorialBeenSeen(false);
 
 				console.log("Storage initialized for first-time user");
 				return true;
@@ -39,6 +41,7 @@ export function DataContextProvider({ children }) {
 			throw error;
 		}
 	};
+
 	// Get all data function
 	const getData = async () => {
 		try {
@@ -47,6 +50,7 @@ export function DataContextProvider({ children }) {
 				const parsedData = JSON.parse(appData);
 				setData(parsedData);
 				setTheme(parsedData["current-theme"] || "light");
+				// setHasTutorialBeenSeen(parsedData["tutorial-seen"] || false);
 			} else {
 				setData(null);
 			}
@@ -55,6 +59,46 @@ export function DataContextProvider({ children }) {
 			throw error;
 		}
 	};
+
+	const resetAll = async () => {
+		try {
+			const keys = await AsyncStorage.getAllKeys();
+			await AsyncStorage.multiRemove(keys);
+			console.log("All app data cleared successfully");
+		} catch (error) {
+			console.error("could not clear data");
+		}
+	};
+
+	const logAll = async () => {
+		try {
+			const keys = await AsyncStorage.getAllKeys();
+			const items = await AsyncStorage.multiGet(keys);
+			console.log("All AsyncStorage data:", items);
+		} catch (error) {
+			console.error("could not log data");
+		}
+	};
+
+	// CHECK IF TUTORIAL SEEN IN LOCAL DATA
+	// IF NOT SEEN SHOW TUTORIAL
+	// THEN SET TUTORIALSEEN TO TRUE
+	// const confirmTutorialSeen = async () => {
+	// 	try {
+	// 		const updatedData = {
+	// 			"tutorial-seen": true,
+	// 			"current-theme": theme,
+	// 			"current-confirmation-count": 0,
+	// 			"previous-confirmation-count": 0,
+	// 			"previous-confirmations": [],
+	// 			"current-confirmations": [],
+	// 		};
+	// 		await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
+	// 		setHasTutorialBeenSeen(true);
+	// 	} catch (error) {
+	// 		console.error("could not check if tutorial has been seen");
+	// 	}
+	// };
 
 	const deleteById = async (itemId) => {
 		try {
@@ -79,6 +123,7 @@ export function DataContextProvider({ children }) {
 	const createNewConfirmation = async (name, icon) => {
 		try {
 			const currentData = data || {
+				// "tutorial-seen": hasTutorialBeenSeen,
 				"current-theme": theme,
 				"current-confirmation-count": 0,
 				"previous-confirmation-count": 0,
@@ -190,7 +235,6 @@ export function DataContextProvider({ children }) {
 	// Theme Switcher
 	const changeTheme = async (newTheme) => {
 		try {
-			// data is already an object, no need to parse
 			let updatedData = {
 				...data,
 				"current-theme": newTheme,
@@ -214,6 +258,7 @@ export function DataContextProvider({ children }) {
 	const clearStorage = async () => {
 		try {
 			const emptyData = {
+				// "tutorial-seen": hasTutorialBeenSeen,
 				"current-theme": data?.["current-theme"],
 				"current-confirmation-count": 0,
 				"previous-confirmation-count": 0,
@@ -252,6 +297,9 @@ export function DataContextProvider({ children }) {
 			changeTheme,
 			startNewCheck,
 			deleteById,
+
+			resetAll,
+			logAll,
 		}),
 		[data, theme]
 	);

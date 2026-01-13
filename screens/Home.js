@@ -5,11 +5,12 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { FlatGrid } from "react-native-super-grid";
 import * as Haptics from "expo-haptics";
 import { confirmationIcons } from "../components/Icons";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Home() {
 	const insets = useSafeAreaInsets();
 	const width = Dimensions.get("window").width;
-	const { themeColors, data, setCompletedById, startNewCheck } = useContext(DataContext);
+	const { themeColors, data, setCompletedById, startNewCheck, theme } = useContext(DataContext);
 	const currentConfirmationsData = data?.["current-confirmations"] || [];
 	const [disableReset, setDisableReset] = useState(true);
 
@@ -100,7 +101,7 @@ export default function Home() {
 						const anim = animations.current[item.id];
 
 						return (
-							<Pressable onPressIn={() => startAnimation(item.id)} onPressOut={() => stopAnimation(item.id)} style={[{ borderColor: themeColors.tertiaryColor }, item.confirmed ? { backgroundColor: themeColors.secondaryColor } : { backgroundColor: themeColors.backgroundColor }, styles.box, item.confirmed ? styles.confirmed : styles.unconfirmed]}>
+							<Pressable onPressIn={() => startAnimation(item.id)} onPressOut={() => stopAnimation(item.id)} style={[{ borderColor: themeColors.tertiaryColor }, item.confirmed ? { backgroundColor: themeColors.tertiaryColor } : { backgroundColor: themeColors.backgroundColor }, styles.box, item.confirmed ? (theme === "light" ? styles.confirmed : styles.confirmedDark) : theme === "light" ? styles.unconfirmed : styles.unconfirmedDark]}>
 								{item.confirmed == false && (
 									<Animated.View
 										style={[
@@ -121,7 +122,7 @@ export default function Home() {
 								})()}
 
 								<Text style={[{ color: themeColors.textColor }, styles.name]}>{item.name}</Text>
-								{item.confirmed && item.lastConfirmedTime ? <Text style={[{ color: themeColors.textColor, backgroundColor: themeColors.secondaryColor, borderColor: themeColors.tertiaryColor }, styles.confirmedAt]}>Confirmed・{item.lastConfirmedTime}</Text> : null}
+								{item.confirmed && item.lastConfirmedTime ? <Text style={[{ color: themeColors.textColor, backgroundColor: themeColors.tertiaryColor, borderColor: themeColors.primaryColor }, styles.confirmedAt]}>Confirmed・{item.lastConfirmedTime}</Text> : null}
 								{!item.confirmed && item.lastConfirmedTime ? <Text style={[{ color: themeColors.lightTextColor }, styles.lastConfirmed]}>Last Confirmed・{item.lastConfirmedTime}</Text> : null}
 							</Pressable>
 						);
@@ -129,8 +130,11 @@ export default function Home() {
 					keyExtractor={(item) => item.id.toString()}
 				/>
 			) : (
-				<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-					<Text style={[styles.nothingToShow, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.backgroundColor, color: themeColors.tertiaryColor }]}>Start creating confirmations in the + tab</Text>
+				<View style={styles.nothingToShowContainer}>
+					<View>
+						<Text style={[styles.nothingToShowText, { color: themeColors.tertiaryColor, borderColor: themeColors.tertiaryColor, color: themeColors.tertiaryColor }]}>Start creating confirmations</Text>
+						<Text style={[styles.nothingToShowText, { color: themeColors.tertiaryColor, borderColor: themeColors.tertiaryColor, color: themeColors.tertiaryColor }]}>in the + tab</Text>
+					</View>
 				</View>
 			)}
 			{data?.["current-confirmations"].length > 0 && !disableReset && (
@@ -140,8 +144,8 @@ export default function Home() {
 					style={({ pressed }) => [
 						styles.buttonWrapper,
 						{
-							backgroundColor: pressed ? themeColors.tertiaryColor : themeColors.secondaryColor,
-							borderColor: pressed ? themeColors.secondaryColor : themeColors.tertiaryColor,
+							backgroundColor: pressed ? themeColors.secondaryColor : themeColors.tertiaryColor,
+							borderColor: themeColors.primaryColor,
 							color: disableReset ? themeColors.tertiaryColor : themeColors.textColor,
 							padding: 12,
 							borderRadius: 8,
@@ -180,12 +184,19 @@ const styles = StyleSheet.create({
 		zIndex: 10,
 	},
 	unconfirmed: {
-		borderWidth: 1,
 		boxShadow: "1px 2px 6px rgba(0, 0, 0, 0.2)",
 	},
 	confirmed: {
+		boxShadow: "inset 1px 1px 4px rgba(0,0,0,0.2)",
+	},
+
+	unconfirmedDark: {
 		borderWidth: 1,
-		boxShadow: "inset 2px 2px 3px rgba(0,0,0,0.2)",
+		boxShadow: "2px 2px 6px rgba(0,0,0,0.7)",
+	},
+	confirmedDark: {
+		borderWidth: 1,
+		boxShadow: "inset 2px 2px 3px rgba(0,0,0,0.7)",
 	},
 	lastConfirmed: {
 		fontSize: 10,
@@ -211,15 +222,18 @@ const styles = StyleSheet.create({
 		marginHorizontal: 5,
 		fontFamily: "Helvetica",
 	},
-	nothingToShow: {
-		fontSize: 16,
-		margin: 30,
+	nothingToShowContainer: {
+		margin: 5,
+		justifyContent: "center",
+		alignItems: "center",
+		flex: 1,
+	},
+	nothingToShowText: {
+		fontSize: 24,
+		marginHorizontal: 10,
 		textAlign: "center",
 		fontFamily: "Helvetica",
 		fontWeight: 100,
-		borderWidth: 0.5,
-		paddingHorizontal: 10,
-		paddingVertical: 30,
 		borderRadius: 10,
 	},
 });

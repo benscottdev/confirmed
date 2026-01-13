@@ -1,8 +1,9 @@
 export const lightTheme = [
 	{
 		backgroundColor: "#fff",
-		secondaryColor: "#c3c3c3",
-		tertiaryColor: "#EBEBEB",
+		primaryColor: "#c3c3c3",
+		secondaryColor: "#E0E0E0",
+		tertiaryColor: "#F4F4F4",
 		textColor: "#272727",
 		lightTextColor: "#c9c9c9",
 	},
@@ -10,10 +11,11 @@ export const lightTheme = [
 
 export const darkTheme = [
 	{
-		backgroundColor: "#2A2A2A",
-		secondaryColor: "#2D2D2D",
-		tertiaryColor: "#393939",
-		textColor: "#c9c9c9",
-		lightTextColor: "#C2C2C2",
+		backgroundColor: "#121212",
+		primaryColor: "#404040",
+		secondaryColor: "#262626",
+		tertiaryColor: "#1A1A1A",
+		textColor: "#E8E8E8",
+		lightTextColor: "#9E9E9E",
 	},
 ];

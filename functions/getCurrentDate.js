@@ -1,6 +1,8 @@
 export function getCurrentDate() {
 	const date = new Date();
-	const dateOptions = { month: "numeric", year: "numeric", day: "numeric" };
+	const day = date.getDate();
+	const month = date.getMonth() + 1; // getMonth() is 0-indexed
+	const year = date.getFullYear();
 
-	return date.toLocaleDateString("en-US", dateOptions);
+	return `${day}/${month}/${year}`;
 }

@@ -31,7 +31,7 @@ export default function CreateNew() {
 			<Text style={[{ color: themeColors.textColor }, styles.heading]}>Create New Confirmation</Text>
 			<View>
 				<Text style={[styles.secondaryHeading, { color: themeColors.textColor }]}>Confirmation title</Text>
-				<TextInput maxLength={16} value={newItemName} onChangeText={(value) => setNewItemName(value)} placeholder="e.g. Front Door, Shower, Switch" placeholderTextColor={themeColors.tertiaryColor} style={[styles.textInput, { borderColor: themeColors.tertiaryColor, backgroundColor: themeColors.secondaryColor, color: themeColors.textColor }]} />
+				<TextInput maxLength={16} value={newItemName} onChangeText={(value) => setNewItemName(value)} placeholder="e.g. Front Door, Shower, Switch" placeholderTextColor={themeColors.secondaryColor} style={[styles.textInput, { borderColor: themeColors.secondaryColor, backgroundColor: themeColors.backgroundColor, color: themeColors.textColor }]} />
 				<Text style={[styles.secondaryHeading, { color: themeColors.textColor }]}>Which icon matches best?</Text>
 				<FlatGrid
 					scrollEnabled={false}
@@ -39,8 +39,8 @@ export default function CreateNew() {
 					data={confirmationIcons}
 					spacing={5}
 					renderItem={({ item }) => (
-						<Pressable onPress={() => setNewItemIcon(item.name)} style={[styles.iconsWrapper, { borderColor: newItemIcon == item.name ? themeColors.textColor : themeColors.tertiaryColor, backgroundColor: themeColors.secondaryColor }]}>
-							<item.completeIcon width={32} height={32} fill={item.name === newItemIcon ? themeColors.textColor : themeColors.tertiaryColor} />
+						<Pressable onPress={() => setNewItemIcon(item.name)} style={[styles.iconsWrapper, { borderColor: newItemIcon == item.name ? themeColors.textColor : themeColors.secondaryColor, backgroundColor: themeColors.backgroundColor }]}>
+							<item.completeIcon width={32} height={32} fill={item.name === newItemIcon ? themeColors.textColor : themeColors.secondaryColor} />
 						</Pressable>
 					)}
 				/>
@@ -52,8 +52,8 @@ export default function CreateNew() {
 					style={({ pressed }) => [
 						styles.buttonWrapper,
 						{
-							backgroundColor: pressed ? "themeColors.secondaryColor" : themeColors.tertiaryColor,
-							borderColor: pressed ? themeColors.tertiaryColor : themeColors.secondaryColor,
+							backgroundColor: themeColors.backgroundColor,
+							borderColor: pressed ? themeColors.textColor : themeColors.secondaryColor,
 						},
 					]}>
 					<Text style={[styles.button, { color: themeColors.textColor }]}>Create Confirmaton</Text>
@@ -85,14 +85,14 @@ const styles = StyleSheet.create({
 		paddingVertical: 15,
 		paddingHorizontal: 10,
 		marginHorizontal: 5,
-		borderWidth: 0.5,
+		borderWidth: 1,
 		fontSize: 16,
 		borderRadius: 5,
 	},
 	iconsWrapper: {
 		aspectRatio: 1,
 		borderRadius: 5,
-		borderWidth: 0.5,
+		borderWidth: 1,
 		justifyContent: "center",
 		alignItems: "center",
 	},
@@ -104,6 +104,6 @@ const styles = StyleSheet.create({
 		padding: 12,
 		borderRadius: 8,
 		marginHorizontal: 5,
-		borderWidth: 0.5,
+		borderWidth: 1,
 	},
 });
