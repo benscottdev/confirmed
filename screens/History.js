@@ -1,5 +1,5 @@
-import { useContext } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { useContext, useMemo } from "react";
+import { View, Text, SectionList, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DataContext } from "../context/DataContext";
 
@@ -8,16 +8,80 @@ export default function History() {
 
 	const { data, themeColors } = useContext(DataContext);
 
-	const historyData = data?.["previous-confirmations"];
+	const historyData = data?.["previous-confirmations"] || [];
+
+	// Helper function to format date labels
+	const formatDateLabel = (dateString) => {
+		const today = new Date();
+		const yesterday = new Date(today);
+		yesterday.setDate(yesterday.getDate() - 1);
+
+		// Format today and yesterday to match getCurrentDate format (d/m/yyyy without leading zeros)
+		const todayString = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+		const yesterdayString = `${yesterday.getDate()}/${yesterday.getMonth() + 1}/${yesterday.getFullYear()}`;
+
+		if (dateString === todayString) {
+			return "Today";
+		} else if (dateString === yesterdayString) {
+			return "Yesterday";
+		}
+		return dateString;
+	};
+
+	// Group confirmations by date
+	const groupedData = useMemo(() => {
+		const groups = {};
+
+		historyData.forEach((item) => {
+			const date = item.dateConfirmed;
+			if (!groups[date]) {
+				groups[date] = [];
+			}
+			groups[date].push(item);
+		});
+
+		// Convert to array of sections and sort by date (most recent first)
+		return Object.keys(groups)
+			.sort((a, b) => {
+				// Parse dates for comparison (assuming format is DD/MM/YYYY)
+				const [dayA, monthA, yearA] = a.split("/");
+				const [dayB, monthB, yearB] = b.split("/");
+				const dateA = new Date(yearA, monthA - 1, dayA);
+				const dateB = new Date(yearB, monthB - 1, dayB);
+				return dateB - dateA;
+			})
+			.map((date) => ({
+				title: formatDateLabel(date),
+				data: groups[date],
+			}));
+	}, [historyData]);
 
 	return (
 		<View style={{ paddingTop: insets.top, paddingLeft: 5, paddingRight: 5, paddingBottom: 100, height: "100%", backgroundColor: themeColors.backgroundColor }}>
 			<Text style={[{ color: themeColors.textColor }, styles.heading]}>Confirmation Log</Text>
-			{data?.["previous-confirmations"].length > 0 ? (
-				<FlatList
-					data={historyData}
+			{historyData.length > 0 ? (
+				<SectionList
+					sections={groupedData}
+					keyExtractor={(item, index) => item.title + index}
+					renderSectionHeader={({ section: { title }, section }) => {
+						const isFirstSection = groupedData.indexOf(section) === 0;
+
+						return (
+							<View
+								style={[
+									styles.sectionHeader,
+									{
+										backgroundColor: themeColors.tertiaryColor,
+										borderColor: themeColors.secondaryColor,
+										marginTop: isFirstSection ? 0 : 15,
+									},
+								]}>
+								<Text style={[styles.sectionHeaderText, { color: themeColors.textColor }]}>{title}</Text>
+							</View>
+						);
+					}}
 					renderItem={({ item }) => (
-						<View title={item.title} keyExtractor={(item) => item.id} style={[{ borderColor: themeColors.secondaryColor }, styles.listItem]}>
+						<View style={[{ borderColor: themeColors.secondaryColor }, styles.listItem]}>
 							<Text style={[{ color: themeColors.textColor }, styles.listTitle]}>{item.title}</Text>
 							<View style={styles.timeStamps}>
 								<Text
@@ -46,22 +110,10 @@ export default function History() {
 									]}>
 									{item.timeConfirmed}
 								</Text>
-								<Text
-									style={[
-										{
-											color: themeColors.textColor,
-											backgroundColor: themeColors.backgroundColor,
-											borderColor: themeColors.secondaryColor,
-											borderWidth: 0.5,
-										},
-										styles.info,
-										styles.timeStampText,
-									]}>
-									{item.dateConfirmed}
-								</Text>
 							</View>
 						</View>
 					)}
+					stickySectionHeadersEnabled={true}
 				/>
 			) : (
 				<View style={styles.nothingToShowContainer}>
@@ -81,14 +133,25 @@ const styles = StyleSheet.create({
 		padding: 10,
 		marginBottom: 20,
 	},
+	sectionHeader: {
+		paddingVertical: 8,
+		paddingHorizontal: 10,
+		borderRadius: 5,
+		borderWidth: 1,
+	},
+	sectionHeaderText: {
+		fontFamily: "Helvetica",
+		fontSize: 15,
+		fontWeight: 400,
+		textTransform: "capitalize",
+		// textAlign: "center",
+	},
 	listItem: {
 		flex: 1,
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "space-between",
-		// marginBottom: 10,
 		borderBottomWidth: 0.5,
-		// borderBottomColor: "#DFDFDF",
 		paddingVertical: 14,
 		paddingHorizontal: 10,
 	},

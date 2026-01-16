@@ -101,7 +101,7 @@ export default function Home() {
 						const anim = animations.current[item.id];
 
 						return (
-							<Pressable onPressIn={() => startAnimation(item.id)} onPressOut={() => stopAnimation(item.id)} style={[{ borderColor: themeColors.tertiaryColor }, item.confirmed ? { backgroundColor: themeColors.tertiaryColor } : { backgroundColor: themeColors.backgroundColor }, styles.box, item.confirmed ? (theme === "light" ? styles.confirmed : styles.confirmedDark) : theme === "light" ? styles.unconfirmed : styles.unconfirmedDark]}>
+							<Pressable onPressIn={() => startAnimation(item.id)} onPressOut={() => stopAnimation(item.id)} style={[{ borderColor: theme === "dark" ? themeColors.tertiaryColor : themeColors.primaryColor }, item.confirmed ? { backgroundColor: themeColors.tertiaryColor } : { backgroundColor: themeColors.backgroundColor }, styles.box, item.confirmed ? (theme === "light" ? styles.confirmed : styles.confirmedDark) : theme === "light" ? styles.unconfirmed : styles.unconfirmedDark]}>
 								{item.confirmed == false && (
 									<Animated.View
 										style={[
@@ -184,9 +184,11 @@ const styles = StyleSheet.create({
 		zIndex: 10,
 	},
 	unconfirmed: {
+		borderWidth: 1,
 		boxShadow: "1px 2px 6px rgba(0, 0, 0, 0.2)",
 	},
 	confirmed: {
+		borderWidth: 1,
 		boxShadow: "inset 1px 1px 4px rgba(0,0,0,0.2)",
 	},
 

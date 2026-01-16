@@ -35,8 +35,8 @@ export default function Settings() {
 			<Text style={[styles.settingsSectionHeading, { color: themeColors.textColor }]}>Theme</Text>
 			<View style={[styles.settingsSection, { borderColor: themeColors.secondaryColor, backgroundColor: themeColors.backgroundColor }]}>
 				<View>
-					{["light", "dark"].map((option) => (
-						<Pressable key={option} onPress={() => changeTheme(option)} style={[styles.settingsSubSection, { borderColor: themeColors.secondaryColor, flexDirection: "row", alignItems: "center", borderBottomWidth: option != "dark" ? 1 : 0 }]}>
+					{["dark", "light"].map((option) => (
+						<Pressable key={option} onPress={() => changeTheme(option)} style={[styles.settingsSubSection, { borderColor: themeColors.secondaryColor, flexDirection: "row", alignItems: "center", borderBottomWidth: option != "light" ? 1 : 0 }]}>
 							<Text style={[styles.themeText, { color: themeColors.textColor }]}>{option}</Text>
 							<RadioButton selected={theme === option} />
 						</Pressable>
@@ -71,7 +71,7 @@ export default function Settings() {
 
 			<View style={styles.credits}>
 				<Text style={[styles.creditText, { color: themeColors.secondaryColor }]}>Version 1.0</Text>
-				<Text style={[styles.creditText, { color: themeColors.secondaryColor }]}>Designed and Developed by Ben</Text>
+				<Text style={[styles.creditText, { color: themeColors.secondaryColor }]}>Designed and Developed by [STUDIO_747]</Text>
 				<Text style={[styles.creditText, { color: themeColors.secondaryColor }]}>© 2026</Text>
 			</View>
 		</View>

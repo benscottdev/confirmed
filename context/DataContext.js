@@ -10,7 +10,7 @@ const STORAGE_KEY = "@confirmed-app-async-data-storage";
 
 export function DataContextProvider({ children }) {
 	const [data, setData] = useState(null);
-	const [theme, setTheme] = useState("light");
+	const [theme, setTheme] = useState("dark");
 
 	const initaliseLocalStorage = async () => {
 		try {
@@ -20,7 +20,7 @@ export function DataContextProvider({ children }) {
 			if (checkStorage === null) {
 				const initialData = {
 					// "tutorial-seen": false,
-					"current-theme": "light",
+					"current-theme": "dark",
 					"current-confirmation-count": 0,
 					"previous-confirmation-count": 0,
 					"previous-confirmations": [],
@@ -29,8 +29,8 @@ export function DataContextProvider({ children }) {
 
 				await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(initialData));
 				setData(initialData);
-				setTheme("light");
-				setHasTutorialBeenSeen(false);
+				setTheme("dark");
+				// setHasTutorialBeenSeen(false);
 
 				console.log("Storage initialized for first-time user");
 				return true;
