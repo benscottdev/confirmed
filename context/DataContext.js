@@ -1,9 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, useState, useMemo, useEffect } from "react";
+import { createContext, useState, useMemo, useEffect, useCallback } from "react";
 import { getCurrentDate } from "../functions/getCurrentDate";
 import { getCurrentTime } from "../functions/getCurrentTime";
 import { lightTheme, darkTheme } from "../components/Themes";
-import { useColorScheme } from "react-native";
 export const DataContext = createContext();
 
 const STORAGE_KEY = "@confirmed-app-async-data-storage";
@@ -19,7 +18,7 @@ export function DataContextProvider({ children }) {
 			// Only initialize if storage is empty (first time user)
 			if (checkStorage === null) {
 				const initialData = {
-					// "tutorial-seen": false,
+					"tutorial-seen": false,
 					"current-theme": "dark",
 					"current-confirmation-count": 0,
 					"previous-confirmation-count": 0,
@@ -47,10 +46,13 @@ export function DataContextProvider({ children }) {
 		try {
 			const appData = await AsyncStorage.getItem(STORAGE_KEY);
 			if (appData) {
-				const parsedData = JSON.parse(appData);
+				let parsedData = JSON.parse(appData);
+				if (!Object.prototype.hasOwnProperty.call(parsedData, "tutorial-seen")) {
+					parsedData = { ...parsedData, "tutorial-seen": true };
+					await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(parsedData));
+				}
 				setData(parsedData);
 				setTheme(parsedData["current-theme"] || "light");
-				// setHasTutorialBeenSeen(parsedData["tutorial-seen"] || false);
 			} else {
 				setData(null);
 			}
@@ -80,25 +82,21 @@ export function DataContextProvider({ children }) {
 		}
 	};
 
-	// CHECK IF TUTORIAL SEEN IN LOCAL DATA
-	// IF NOT SEEN SHOW TUTORIAL
-	// THEN SET TUTORIALSEEN TO TRUE
-	// const confirmTutorialSeen = async () => {
-	// 	try {
-	// 		const updatedData = {
-	// 			"tutorial-seen": true,
-	// 			"current-theme": theme,
-	// 			"current-confirmation-count": 0,
-	// 			"previous-confirmation-count": 0,
-	// 			"previous-confirmations": [],
-	// 			"current-confirmations": [],
-	// 		};
-	// 		await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
-	// 		setHasTutorialBeenSeen(true);
-	// 	} catch (error) {
-	// 		console.error("could not check if tutorial has been seen");
-	// 	}
-	// };
+	const confirmTutorialSeen = useCallback(async () => {
+		try {
+			const raw = await AsyncStorage.getItem(STORAGE_KEY);
+			if (!raw) return;
+			const parsed = JSON.parse(raw);
+			const updatedData = {
+				...parsed,
+				"tutorial-seen": true,
+			};
+			await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
+			setData(updatedData);
+		} catch (error) {
+			console.error("confirmTutorialSeen failed:", error);
+		}
+	}, []);
 
 	const deleteById = async (itemId) => {
 		try {
@@ -123,7 +121,7 @@ export function DataContextProvider({ children }) {
 	const createNewConfirmation = async (name, icon) => {
 		try {
 			const currentData = data || {
-				// "tutorial-seen": hasTutorialBeenSeen,
+				"tutorial-seen": true,
 				"current-theme": theme,
 				"current-confirmation-count": 0,
 				"previous-confirmation-count": 0,
@@ -161,6 +159,47 @@ export function DataContextProvider({ children }) {
 			throw error;
 		}
 	};
+
+	/** Uncheck one confirmation and remove its latest history row (undo that confirm). */
+	const resetConfirmationById = useCallback(
+		async (itemId) => {
+			try {
+				const currentConfirmations = data?.["current-confirmations"];
+				if (!currentConfirmations) return;
+				const target = currentConfirmations.find((c) => c.id === itemId);
+				if (!target?.confirmed) return;
+
+				const updatedCurrent = currentConfirmations.map((c) =>
+					c.id === itemId
+						? {
+								...c,
+								confirmed: false,
+								lastConfirmedDate: null,
+								lastConfirmedTime: null,
+							}
+						: c
+				);
+
+				let updatedPrevious = [...(data["previous-confirmations"] || [])];
+				const idx = updatedPrevious.findIndex((p) => p.orignalId === itemId);
+				if (idx !== -1) {
+					updatedPrevious = [...updatedPrevious.slice(0, idx), ...updatedPrevious.slice(idx + 1)];
+				}
+
+				const updatedData = {
+					...data,
+					"current-confirmations": updatedCurrent,
+					"previous-confirmations": updatedPrevious,
+					"previous-confirmation-count": updatedPrevious.length,
+				};
+				await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
+				setData(updatedData);
+			} catch (error) {
+				console.error("resetConfirmationById:", error);
+			}
+		},
+		[data]
+	);
 
 	// Start new check - sets all item's confirmed status to false
 	const startNewCheck = async () => {
@@ -258,7 +297,7 @@ export function DataContextProvider({ children }) {
 	const clearStorage = async () => {
 		try {
 			const emptyData = {
-				// "tutorial-seen": hasTutorialBeenSeen,
+				"tutorial-seen": data?.["tutorial-seen"] ?? true,
 				"current-theme": data?.["current-theme"],
 				"current-confirmation-count": 0,
 				"previous-confirmation-count": 0,
@@ -296,12 +335,13 @@ export function DataContextProvider({ children }) {
 			setCompletedById,
 			changeTheme,
 			startNewCheck,
+			resetConfirmationById,
 			deleteById,
-
+			confirmTutorialSeen,
 			resetAll,
 			logAll,
 		}),
-		[data, theme]
+		[data, theme, confirmTutorialSeen, resetConfirmationById]
 	);
 
 	return <DataContext.Provider value={contextValue}>{children}</DataContext.Provider>;

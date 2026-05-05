@@ -117,7 +117,7 @@ export default function History() {
 				/>
 			) : (
 				<View style={styles.nothingToShowContainer}>
-					<Text style={[styles.nothingToShowText, { color: themeColors.tertiaryColor }]}>You currently have no confirmation history</Text>
+					<Text style={[styles.nothingToShowText, { color: themeColors.darkTextColor }]}>You currently have no confirmation history</Text>
 				</View>
 			)}
 		</View>

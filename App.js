@@ -1,26 +1,40 @@
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, DefaultTheme, DarkTheme } from "@react-navigation/native";
 import Navigation from "./navigation/Navigation";
-import { StatusBar, View, Text, StyleSheet, ActivityIndicator } from "react-native";
-import { useEffect, useState, useContext } from "react";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useState, useContext, useMemo } from "react";
 import { DataContext } from "./context/DataContext";
 
 export default function App() {
 	const [isAppStarting, setIsAppStarting] = useState(true);
-	const { themeColors } = useContext(DataContext);
+	const ctx = useContext(DataContext);
+	const themeColors = ctx?.themeColors;
+
+	const navigationTheme = useMemo(() => {
+		const base = ctx?.theme === "light" ? DefaultTheme : DarkTheme;
+		const bg = themeColors?.backgroundColor ?? "#121212";
+		return {
+			...base,
+			colors: {
+				...base.colors,
+				background: bg,
+				card: bg,
+			},
+		};
+	}, [ctx?.theme, themeColors?.backgroundColor]);
 
 	useEffect(() => {
-		setTimeout(() => {
-			setIsAppStarting(false);
-		}, 2000);
-	});
+		const t = setTimeout(() => setIsAppStarting(false), 2000);
+		return () => clearTimeout(t);
+	}, []);
 
 	return (
 		<SafeAreaProvider>
-			<NavigationContainer>
+			<NavigationContainer theme={navigationTheme}>
 				{isAppStarting && (
-					<View style={[styles.loader, { backgroundColor: themeColors.backgroundColor }]}>
-						<ActivityIndicator />
+					<View style={[styles.loader, { backgroundColor: themeColors?.backgroundColor ?? "#121212" }]}>
+						<ActivityIndicator color={themeColors?.textColor} />
 					</View>
 				)}
 				<StatusBar style="auto" />

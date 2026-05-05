@@ -1,118 +1,165 @@
-import { View, ScrollView, Text, Pressable, Button, StyleSheet } from "react-native";
+import { View, ScrollView, Text, Pressable, StyleSheet } from "react-native";
 import { DataContext } from "../context/DataContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useContext } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute, CommonActions } from "@react-navigation/native";
 import Ionicons from "@react-native-vector-icons/ionicons";
 
 export const Tutorial = () => {
 	const insets = useSafeAreaInsets();
-	const { data, confirmTutorialSeen, themeColors, logAll } = useContext(DataContext);
+	const { confirmTutorialSeen, themeColors } = useContext(DataContext);
 	const navigation = useNavigation();
+	const route = useRoute();
+	const fromSettings = route.params?.fromSettings === true;
 
-	const redirectAndConfirm = async () => {
-		await confirmTutorialSeen();
-		navigation.navigate("MainTabs");
+	const onContinue = async () => {
+		if (!fromSettings) {
+			await confirmTutorialSeen();
+		}
+		if (fromSettings) {
+			navigation.goBack();
+		} else {
+			navigation.dispatch(
+				CommonActions.reset({
+					index: 0,
+					routes: [{ name: "MainTabs" }],
+				})
+			);
+		}
 	};
+
+	const bodyMuted = { color: themeColors.lightTextColor };
+	const bodyPrimary = { color: themeColors.textColor };
 
 	return (
 		<ScrollView
-			style={{
-				paddingTop: insets.top,
-				paddingLeft: 5,
-				paddingRight: 5,
-				flex: 1,
-				backgroundColor: themeColors.backgroundColor,
-			}}>
-			{/* <View style={[styles.aboutSection, { backgroundColor: themeColors.secondaryColor, borderColor: themeColors.tertiaryColor }]}>
-				<Text style={[styles.heading, { color: themeColors.textColor }]}>About Confirmed.</Text>
-				<Text style={styles.text}>Sometimes the hardest part isn’t doing the thing — it’s remembering that you did it.</Text>
-				<Text style={styles.text}>This app lets you create small confirmations for everyday actions and mark them once they’re done. Each confirmation is logged, so you can check back later instead of relying on memory alone.</Text>
-				<Text style={styles.text}>Simple, quiet, and intentionally minimal.</Text>
-			</View> */}
+			style={{ flex: 1, backgroundColor: themeColors.backgroundColor, paddingTop: insets.top }}
+			contentContainerStyle={styles.scrollContent}
+			showsVerticalScrollIndicator={false}>
+			<Text style={[styles.screenTitle, { color: themeColors.textColor }]}>Guide</Text>
 
-			<View style={styles.howToUseContainer}>
-				<Text style={[styles.heading, { color: themeColors.textColor, marginBottom: 20 }]}>How to Use Confirmed</Text>
-				<View style={styles.howToUseSectionsWrapper}>
-					<Text style={styles.text}>
-						Create new daily confirmations in the <Ionicons name="add" size={16} color={themeColors.textColor} /> tab <Text style={{ fontStyle: "italic" }}>(e.g Front Door, Oven, Bathroom Light)</Text>
+			<View style={[styles.section, { borderColor: themeColors.secondaryColor, backgroundColor: themeColors.backgroundColor }]}>
+				<Text style={[styles.sectionHeading, { color: themeColors.textColor }]}>About</Text>
+				<Text style={[styles.paragraph, bodyMuted]}>
+					Sometimes the hardest part is not doing the thing — it is remembering that you did it.
+				</Text>
+				<Text style={[styles.paragraph, bodyMuted]}>
+					Create small confirmations for everyday actions and mark them when they are done. Each one is logged so you can look back instead of relying on memory alone.
+				</Text>
+				<Text style={[styles.paragraph, bodyMuted, styles.paragraphLast]}>Simple, quiet, and intentionally minimal.</Text>
+			</View>
+
+			<View style={[styles.section, { borderColor: themeColors.secondaryColor, backgroundColor: themeColors.backgroundColor }]}>
+				<Text style={[styles.sectionHeading, { color: themeColors.textColor }]}>How to use</Text>
+
+				<View style={[styles.stepBlock, { borderColor: themeColors.secondaryColor }]}>
+					<Text style={[styles.paragraph, bodyMuted]}>
+						Create confirmations in the <Ionicons name="add" size={15} color={themeColors.textColor} /> tab{" "}
+						<Text style={[bodyPrimary, { fontStyle: "italic" }]}>(for example: Front door, Oven, Bathroom light)</Text>
 					</Text>
-					<View style={[styles.keyline, { borderColor: themeColors.tertiaryColor }]}></View>
-					<Text style={styles.text}>
-						To confirm, navigate to the hold down on the individual confirmation on the <Ionicons name="grid" size={12} color={themeColors.textColor} /> page
+				</View>
+				<View style={[styles.stepBlock, { borderColor: themeColors.secondaryColor }]}>
+					<Text style={[styles.paragraph, bodyMuted]}>
+						On the <Ionicons name="grid" size={14} color={themeColors.textColor} /> home screen,{" "}
+						<Text style={[bodyPrimary, { fontWeight: "500" }]}>press and hold</Text> a card until the progress bar finishes to confirm it.
 					</Text>
-					<View style={[styles.keyline, { borderColor: themeColors.tertiaryColor }]}></View>
-					<Text style={styles.text}>
-						View your confirmation history in the <Ionicons name="list" size={14} color={themeColors.textColor} /> tab. This is a list of all past confirmations including their date and time, to make sure you never lose track.
+				</View>
+				<View style={[styles.stepBlock, { borderColor: themeColors.secondaryColor }]}>
+					<Text style={[styles.paragraph, bodyMuted]}>
+						After a card is confirmed, <Text style={[bodyPrimary, { fontWeight: "500" }]}>triple-tap the card</Text>, then confirm in the alert to reset only that item (and remove its latest log entry).{" "}
+						<Text style={[bodyPrimary, { fontWeight: "500" }]}>Start new session</Text> still clears every card at once.
 					</Text>
-					<View style={[styles.keyline, { borderColor: themeColors.tertiaryColor }]}></View>
-					<Text style={styles.text}>
-						To remove individual confirmations from the <Ionicons name="grid" size={12} color={themeColors.textColor} /> page, navigate to the <Ionicons name="settings" size={14} color={themeColors.textColor} style={{ padding: 5 }} /> page, select “Edit Selected Confirmations”, from here, you can delete your no-longer-required confirmations.
+				</View>
+				<View style={[styles.stepBlock, { borderColor: themeColors.secondaryColor }]}>
+					<Text style={[styles.paragraph, bodyMuted]}>
+						View past confirmations in the <Ionicons name="list" size={14} color={themeColors.textColor} /> tab, with date and time for each entry.
 					</Text>
-					<View style={[styles.keyline, { borderColor: themeColors.tertiaryColor }]}></View>
-					<Text style={styles.text}>
-						On the <Ionicons name="settings" size={14} color={themeColors.textColor} /> page, the “Delete all data” button will remove all current and past confirmations.
+				</View>
+				<View style={[styles.stepBlock, { borderColor: themeColors.secondaryColor }]}>
+					<Text style={[styles.paragraph, bodyMuted]}>
+						To remove individual items, open <Ionicons name="settings" size={14} color={themeColors.textColor} /> and choose &quot;Edit current confirmations&quot;.
+					</Text>
+				</View>
+				<View style={[styles.stepBlock, styles.stepBlockLast, { borderColor: themeColors.secondaryColor }]}>
+					<Text style={[styles.paragraph, bodyMuted, styles.paragraphLast]}>
+						&quot;Delete all data&quot; on the <Ionicons name="settings" size={14} color={themeColors.textColor} /> screen removes all current and past confirmations.
 					</Text>
 				</View>
 			</View>
-			<Pressable onPress={() => redirectAndConfirm()} style={[styles.backButton, { borderColor: themeColors.tertiaryColor }]}>
-				<Text style={[styles.buttonText, { color: themeColors.textColor }]}>Continue</Text>
+
+			<Pressable
+				onPress={onContinue}
+				style={({ pressed }) => [
+					styles.continueButton,
+					{
+						borderColor: themeColors.secondaryColor,
+						backgroundColor: pressed ? themeColors.secondaryColor : themeColors.backgroundColor,
+					},
+				]}>
+				<Text style={[styles.continueLabel, { color: themeColors.textColor }]}>{fromSettings ? "Done" : "Continue"}</Text>
 			</Pressable>
 		</ScrollView>
 	);
 };
 
 const styles = StyleSheet.create({
-	heading: {
+	scrollContent: {
+		paddingLeft: 16,
+		paddingRight: 16,
+		paddingBottom: 40,
+	},
+	screenTitle: {
 		fontFamily: "Helvetica",
 		fontSize: 20,
-		fontWeight: 100,
-		textAlign: "center",
-		padding: 10,
-		// marginBottom: 20,
+		fontWeight: "100",
+		textAlign: "left",
+		marginBottom: 20,
+		marginTop: 4,
 	},
-	aboutSection: {
-		flexDirection: "column",
-		gap: 20,
-		paddingHorizontal: 10,
-	},
-	text: {
-		textAlign: "center",
-		fontFamily: "Helvetica",
-		fontWeight: 100,
-		fontSize: 14,
-		marginHorizontal: 5,
-		color: "grey",
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	howToUseContainer: {
-		marginTop: 20,
-		borderRadius: 15,
-		paddingBottom: 30,
-		paddingTop: 20,
-		paddingHorizontal: 10,
-	},
-	howToUseSectionsWrapper: {
-		gap: 20,
-	},
-	keyline: {
-		width: "100%",
-		borderBottomWidth: 1,
-	},
-	backButton: {
+	section: {
+		borderWidth: 1,
 		borderRadius: 10,
-		paddingVertical: 10,
-		fontFamily: "Helvetica",
-		marginTop: 20,
-		borderWidth: 0.5,
-		marginBottom: 30,
-		marginHorizontal: 100,
+		marginBottom: 20,
+		paddingHorizontal: 14,
+		paddingVertical: 16,
 	},
-	buttonText: {
-		textAlign: "center",
+	sectionHeading: {
 		fontFamily: "Helvetica",
-		fontSize: 14,
-		paddingVertical: 5,
+		fontSize: 16,
+		fontWeight: "200",
+		textAlign: "left",
+		marginBottom: 12,
+	},
+	paragraph: {
+		fontFamily: "Helvetica",
+		fontSize: 15,
+		fontWeight: "300",
+		lineHeight: 22,
+		textAlign: "left",
+		marginBottom: 12,
+	},
+	paragraphLast: {
+		marginBottom: 0,
+	},
+	stepBlock: {
+		borderBottomWidth: StyleSheet.hairlineWidth,
+		paddingVertical: 12,
+	},
+	stepBlockLast: {
+		borderBottomWidth: 0,
+		paddingBottom: 0,
+	},
+	continueButton: {
+		borderWidth: 1,
+		borderRadius: 10,
+		paddingVertical: 14,
+		paddingHorizontal: 16,
+		marginTop: 4,
+	},
+	continueLabel: {
+		fontFamily: "Helvetica",
+		fontSize: 15,
+		fontWeight: "300",
+		textAlign: "left",
 	},
 });

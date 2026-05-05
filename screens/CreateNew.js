@@ -21,8 +21,8 @@ export default function CreateNew() {
 
 	const addNewConfirmation = () => {
 		createNewConfirmation(newItemName, newItemIcon);
-		Haptics.notificationAsync(Haptics.notificationAsync.Warning);
-		setNewItemName(null);
+		Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+		setNewItemName("");
 		setNewItemIcon(null);
 	};
 
@@ -40,7 +40,12 @@ export default function CreateNew() {
 					spacing={5}
 					renderItem={({ item }) => (
 						<Pressable onPress={() => setNewItemIcon(item.name)} style={[styles.iconsWrapper, { borderColor: newItemIcon == item.name ? themeColors.textColor : themeColors.secondaryColor, backgroundColor: themeColors.backgroundColor }]}>
-							<item.completeIcon width={32} height={32} fill={item.name === newItemIcon ? themeColors.textColor : themeColors.secondaryColor} />
+							<item.Icon
+								width={32}
+								height={32}
+								stroke={item.name === newItemIcon ? themeColors.textColor : themeColors.secondaryColor}
+								color={item.name === newItemIcon ? themeColors.textColor : themeColors.secondaryColor}
+							/>
 						</Pressable>
 					)}
 				/>

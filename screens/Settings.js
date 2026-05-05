@@ -1,32 +1,37 @@
-import { View, StyleSheet, Text, Pressable, Button, Dimensions } from "react-native";
-import { useContext, useState } from "react";
+import { View, StyleSheet, Text, Pressable, Alert } from "react-native";
+import { useContext } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DataContext } from "../context/DataContext";
 import * as Haptics from "expo-haptics";
-import Modal from "react-native-modal";
 import { useNavigation } from "@react-navigation/native";
 
 export default function Settings() {
 	const insets = useSafeAreaInsets();
-	const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
-	const width = Dimensions.get("window").width;
-	const height = Dimensions.get("window").height;
 	const navigation = useNavigation();
 
-	const { themeColors, changeTheme, theme, clearStorage, resetAll, logAll } = useContext(DataContext);
+	const { themeColors, changeTheme, theme, clearStorage } = useContext(DataContext);
 
 	function RadioButton({ selected }) {
 		return <View style={[radioStyles.outer, selected && styles.outerSelected]}>{selected && <View style={radioStyles.inner} />}</View>;
 	}
 
-	const toggleConfirmModal = () => {
-		setIsConfirmModalVisible(!isConfirmModalVisible);
-	};
-
-	const clearStorageWithHaptics = () => {
-		clearStorage();
-		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-		setIsConfirmModalVisible(false);
+	const confirmDeleteAllData = () => {
+		Alert.alert(
+			"Delete all data?",
+			"This will remove all current and past confirmations. This cannot be undone.",
+			[
+				{ text: "Cancel", style: "cancel" },
+				{
+					text: "Delete All",
+					style: "destructive",
+					onPress: () => {
+						clearStorage();
+						Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+					},
+				},
+			],
+			{ cancelable: true },
+		);
 	};
 
 	return (
@@ -43,35 +48,27 @@ export default function Settings() {
 					))}
 				</View>
 			</View>
+
+			<Text style={[styles.settingsSectionHeading, { color: themeColors.textColor }]}>Guide</Text>
+			<View style={[styles.settingsSection, { borderColor: themeColors.secondaryColor }]}>
+				<Pressable onPress={() => navigation.navigate("Tutorial", { fromSettings: true })} style={({ pressed }) => [styles.settingsSubSection, { borderBottomWidth: 0, borderColor: themeColors.secondaryColor, backgroundColor: pressed ? themeColors.secondaryColor : themeColors.backgroundColor }]}>
+					<Text style={[styles.themeText, { color: themeColors.textColor, width: "100%" }]}>How to use</Text>
+				</Pressable>
+			</View>
+
 			<Text style={[styles.settingsSectionHeading, { color: themeColors.textColor }]}>Edit Confirmations</Text>
 			<View style={[styles.settingsSection, { borderColor: themeColors.secondaryColor }]}>
 				<Pressable onPress={() => navigation.navigate("EditConfirmations")} style={({ pressed }) => [styles.settingsSubSection, { borderBottomWidth: 0.5, borderColor: themeColors.secondaryColor, alignItems: "center", backgroundColor: pressed ? themeColors.secondaryColor : themeColors.backgroundColor }]}>
 					<Text style={[styles.themeText, { color: themeColors.textColor, width: "100%" }]}>Edit current confirmations</Text>
 				</Pressable>
-				<Pressable onPress={() => toggleConfirmModal()} style={({ pressed }) => [styles.settingsSubSection, { flexDirection: "row", alignItems: "center", backgroundColor: pressed ? themeColors.secondaryColor : themeColors.backgroundColor }]}>
+				<Pressable onPress={confirmDeleteAllData} style={({ pressed }) => [styles.settingsSubSection, { flexDirection: "row", alignItems: "center", backgroundColor: pressed ? themeColors.secondaryColor : themeColors.backgroundColor }]}>
 					<Text style={[styles.themeText, { color: themeColors.textColor }]}>Delete all data</Text>
 				</Pressable>
 			</View>
-			{/* DELETE ALL MODAL */}
-			{isConfirmModalVisible && <View style={[styles.modalBg, { width, height }]}></View>}
-			<Modal style={[styles.modal, { borderColor: themeColors.secondaryColor, backgroundColor: themeColors.backgroundColor }]} visible={isConfirmModalVisible}>
-				<Text style={[styles.modalHeading, { color: themeColors.textColor }]}>Are you sure?</Text>
-				<Text style={[styles.modalBody, { color: themeColors.lightTextColor }]}>This will remove all current & past confirmations</Text>
-				<View style={{ flexDirection: "row", justifyContent: "space-evenly", width: "100%", marginTop: 15 }}>
-					<Pressable onPress={() => clearStorageWithHaptics()} style={[styles.modalButton, { borderColor: themeColors.tertiaryColor }]}>
-						<Text style={{ color: themeColors.textColor }}>Confirm</Text>
-					</Pressable>
-					<Pressable onPress={() => toggleConfirmModal()} style={[styles.modalButton, { borderColor: themeColors.tertiaryColor }]}>
-						<Text style={{ color: themeColors.textColor }}>Decline</Text>
-					</Pressable>
-				</View>
-			</Modal>
-			{/* <Button title="REMOVE ALL DATA" onPress={() => resetAll()}></Button> */}
-			{/* <Button title="Log all Data" onPress={() => logAll()}></Button> */}
 
 			<View style={styles.credits}>
 				<Text style={[styles.creditText, { color: themeColors.secondaryColor }]}>Version 1.0</Text>
-				<Text style={[styles.creditText, { color: themeColors.secondaryColor }]}>Designed and Developed by [STUDIO_747]</Text>
+				<Text style={[styles.creditText, { color: themeColors.secondaryColor }]}>Designed and Developed by Ben Scott</Text>
 				<Text style={[styles.creditText, { color: themeColors.secondaryColor }]}>© 2026</Text>
 			</View>
 		</View>
@@ -110,43 +107,6 @@ const styles = StyleSheet.create({
 		fontFamily: "Helvetica",
 		fontWeight: 100,
 		width: "30%",
-	},
-	modalBg: {
-		backgroundColor: "rgba(0, 0, 0, 0.75)",
-		position: "absolute",
-		top: 0,
-		left: 0,
-	},
-
-	modal: {
-		minHeight: 20,
-		width: "80%",
-		padding: 20,
-		borderRadius: 10,
-		position: "absolute",
-		top: "50%",
-		left: "45%",
-		transform: 'translate("-50%, -50%")',
-		borderWidth: 1,
-		justifyContent: "center",
-		alignItems: "center",
-		gap: 10,
-	},
-	modalHeading: {
-		textAlign: "center",
-		fontSize: 20,
-	},
-	modalBody: {
-		textAlign: "center",
-		fontSize: 14,
-		fontWeight: 100,
-		maxWidth: "90%",
-	},
-	modalButton: {
-		borderWidth: 1,
-		paddingVertical: 3,
-		paddingHorizontal: 20,
-		borderRadius: 3,
 	},
 	credits: {
 		flexDirection: "column",

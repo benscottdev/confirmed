@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
+import { ActivityIndicator, View, Easing } from "react-native";
 import Home from "../screens/Home";
 import CreateNew from "../screens/CreateNew";
 import History from "../screens/History";
@@ -8,32 +9,30 @@ import Settings from "../screens/Settings";
 import { Tutorial } from "../screens/Tutorial";
 import { EditConfirmations } from "../screens/EditConfirmations";
 import { DataContext } from "../context/DataContext";
-import { useContext, useEffect } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { useContext } from "react";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-// Create a separate component for your tabs
 function TabNavigator() {
 	const context = useContext(DataContext);
-	const navigation = useNavigation();
 
-	// const showTutorialIfFirstOpen = () => {
-	// 	if (context.data !== null && context.hasTutorialBeenSeen === false) {
-	// 		navigation.navigate("Tutorial");
-	// 	}
-	// };
-
-	// useEffect(() => {
-	// 	showTutorialIfFirstOpen();
-	// }, [context.hasTutorialBeenSeen, context.data]);
+	const tabFadeSpec = {
+		animation: "timing",
+		config: {
+			duration: 400,
+			easing: Easing.out(Easing.cubic),
+		},
+	};
 
 	return (
 		<Tab.Navigator
 			screenOptions={({ route }) => ({
 				headerShown: false,
 				tabBarShowLabel: false,
+				animation: "fade",
+				transitionSpec: tabFadeSpec,
+				sceneStyle: { backgroundColor: context.themeColors.backgroundColor },
 				tabBarInactiveTintColor: context.themeColors.secondaryColor,
 				tabBarActiveTintColor: context.themeColors.textColor,
 				tabBarStyle: {
@@ -78,13 +77,31 @@ function TabNavigator() {
 	);
 }
 
-// Main navigation component with Stack
 export default function Navigation() {
+	const { data, themeColors } = useContext(DataContext);
+
+	if (!data) {
+		return (
+			<View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: themeColors.backgroundColor }}>
+				<ActivityIndicator size="large" color={themeColors.textColor} />
+			</View>
+		);
+	}
+
+	const showTutorialFirst = data["tutorial-seen"] === false;
+
 	return (
-		<Stack.Navigator screenOptions={{ headerShown: false }}>
+		<Stack.Navigator
+			initialRouteName={showTutorialFirst ? "Tutorial" : "MainTabs"}
+			screenOptions={{
+				headerShown: false,
+				animation: "fade",
+				animationDuration: 280,
+				contentStyle: { backgroundColor: themeColors.backgroundColor },
+			}}>
+			<Stack.Screen name="Tutorial" component={Tutorial} />
 			<Stack.Screen name="MainTabs" component={TabNavigator} />
 			<Stack.Screen name="EditConfirmations" component={EditConfirmations} />
-			{/* <Stack.Screen name="Tutorial" component={Tutorial} /> */}
 		</Stack.Navigator>
 	);
 }

@@ -9,7 +9,7 @@ export const EditConfirmations = () => {
 	const { deleteById, themeColors, data } = useContext(DataContext);
 	const navigation = useNavigation();
 
-	const currentConfirmations = data["current-confirmations"];
+	const currentConfirmations = data?.["current-confirmations"] ?? [];
 
 	return (
 		<View style={{ paddingTop: insets.top, paddingLeft: 10, paddingRight: 10, paddingBottom: insets.bottom, height: "100%", backgroundColor: themeColors.backgroundColor }}>

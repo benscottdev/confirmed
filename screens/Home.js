@@ -1,16 +1,15 @@
-import { View, Text, StyleSheet, Dimensions, Pressable, Animated } from "react-native";
+import { View, Text, StyleSheet, Dimensions, Pressable, Animated, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DataContext } from "../context/DataContext";
 import { useContext, useEffect, useRef, useState } from "react";
 import { FlatGrid } from "react-native-super-grid";
 import * as Haptics from "expo-haptics";
 import { confirmationIcons } from "../components/Icons";
-import { useNavigation } from "@react-navigation/native";
 
 export default function Home() {
 	const insets = useSafeAreaInsets();
 	const width = Dimensions.get("window").width;
-	const { themeColors, data, setCompletedById, startNewCheck, theme } = useContext(DataContext);
+	const { themeColors, data, setCompletedById, startNewCheck, resetConfirmationById, theme } = useContext(DataContext);
 	const currentConfirmationsData = data?.["current-confirmations"] || [];
 	const [disableReset, setDisableReset] = useState(true);
 
@@ -21,9 +20,8 @@ export default function Home() {
 		return 200;
 	};
 
-	const getIconComponent = (iconName, confirmed) => {
-		const iconData = confirmationIcons.find((icon) => icon.name === iconName);
-		return confirmed ? iconData?.incompleteIcon : iconData?.completeIcon;
+	const getIconComponent = (iconName) => {
+		return confirmationIcons.find((icon) => icon.name === iconName)?.Icon;
 	};
 
 	const resetConfirmedHaptics = () => {
@@ -38,6 +36,7 @@ export default function Home() {
 
 	// Store animations and completion state
 	const animations = useRef({});
+	const resetTripleTapRef = useRef({});
 
 	const startAnimation = (itemId) => {
 		// Create animation if it doesn't exist
@@ -77,6 +76,61 @@ export default function Home() {
 		checkIfAnyTrue();
 	}, [data]);
 
+	useEffect(() => {
+		const list = data?.["current-confirmations"] ?? [];
+		list.forEach((item) => {
+			if (!item.confirmed && animations.current[item.id]) {
+				animations.current[item.id].setValue(0);
+			}
+		});
+	}, [data]);
+
+	useEffect(() => {
+		return () => {
+			Object.values(resetTripleTapRef.current).forEach((s) => {
+				if (s?.timeout) clearTimeout(s.timeout);
+			});
+			resetTripleTapRef.current = {};
+		};
+	}, []);
+
+	const TRIPLE_TAP_MS = 500;
+
+	const onResetTripleTap = (itemId, itemName) => {
+		const key = String(itemId);
+		const prev = resetTripleTapRef.current[key];
+		if (prev?.timeout) clearTimeout(prev.timeout);
+
+		const count = (prev?.count ?? 0) + 1;
+
+		if (count >= 3) {
+			resetTripleTapRef.current[key] = { count: 0, timeout: null };
+			Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+			Alert.alert(
+				"Reset this confirmation?",
+				`"${itemName}" will need to be confirmed again. The latest log entry for this item will be removed.`,
+				[
+					{ text: "Cancel", style: "cancel" },
+					{
+						text: "Reset",
+						style: "destructive",
+						onPress: () => {
+							resetConfirmationById(itemId);
+							Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+						},
+					},
+				],
+			);
+			return;
+		}
+
+		const timeout = setTimeout(() => {
+			resetTripleTapRef.current[key] = { count: 0, timeout: null };
+		}, TRIPLE_TAP_MS);
+
+		resetTripleTapRef.current[key] = { count, timeout };
+	};
+
 	return (
 		<View
 			style={{
@@ -87,7 +141,7 @@ export default function Home() {
 				flex: 1,
 				backgroundColor: themeColors.backgroundColor,
 			}}>
-			{data?.["current-confirmations"].length > 0 ? (
+			{data?.["current-confirmations"]?.length > 0 ? (
 				<FlatGrid
 					itemDimension={getItemDimension()}
 					spacing={10}
@@ -100,8 +154,15 @@ export default function Home() {
 						}
 						const anim = animations.current[item.id];
 
-						return (
-							<Pressable onPressIn={() => startAnimation(item.id)} onPressOut={() => stopAnimation(item.id)} style={[{ borderColor: theme === "dark" ? themeColors.tertiaryColor : themeColors.primaryColor }, item.confirmed ? { backgroundColor: themeColors.tertiaryColor } : { backgroundColor: themeColors.backgroundColor }, styles.box, item.confirmed ? (theme === "light" ? styles.confirmed : styles.confirmedDark) : theme === "light" ? styles.unconfirmed : styles.unconfirmedDark]}>
+						const cardStyle = [
+							{ borderColor: theme === "dark" ? themeColors.tertiaryColor : themeColors.primaryColor },
+							item.confirmed ? { backgroundColor: themeColors.tertiaryColor } : { backgroundColor: themeColors.backgroundColor },
+							styles.box,
+							item.confirmed ? (theme === "light" ? styles.confirmed : styles.confirmedDark) : theme === "light" ? styles.unconfirmed : styles.unconfirmedDark,
+						];
+
+						const inner = (
+							<>
 								{item.confirmed == false && (
 									<Animated.View
 										style={[
@@ -117,13 +178,34 @@ export default function Home() {
 									/>
 								)}
 								{(() => {
-									const IconComponent = getIconComponent(item.icon, item.confirmed);
-									return IconComponent ? <IconComponent width={32} height={32} fill={themeColors.textColor} /> : null;
+									const IconComponent = getIconComponent(item.icon);
+									return IconComponent ? <IconComponent width={32} height={32} stroke={themeColors.textColor} color={themeColors.textColor} /> : null;
 								})()}
 
 								<Text style={[{ color: themeColors.textColor }, styles.name]}>{item.name}</Text>
-								{item.confirmed && item.lastConfirmedTime ? <Text style={[{ color: themeColors.textColor, backgroundColor: themeColors.tertiaryColor, borderColor: themeColors.primaryColor }, styles.confirmedAt]}>Confirmed・{item.lastConfirmedTime}</Text> : null}
+								{item.confirmed && item.lastConfirmedTime ? (
+									<Text style={[{ color: themeColors.textColor, backgroundColor: themeColors.tertiaryColor, borderColor: themeColors.primaryColor }, styles.confirmedAt]}>Confirmed・{item.lastConfirmedTime}</Text>
+								) : null}
 								{!item.confirmed && item.lastConfirmedTime ? <Text style={[{ color: themeColors.lightTextColor }, styles.lastConfirmed]}>Last Confirmed・{item.lastConfirmedTime}</Text> : null}
+							</>
+						);
+
+						if (item.confirmed) {
+							return (
+								<Pressable
+									accessibilityRole="button"
+									accessibilityLabel="Reset this confirmation"
+									accessibilityHint="Triple tap this card, then confirm in the dialog"
+									onPress={() => onResetTripleTap(item.id, item.name)}
+									style={({ pressed }) => [cardStyle, pressed ? { opacity: 0.92 } : null]}>
+									{inner}
+								</Pressable>
+							);
+						}
+
+						return (
+							<Pressable onPressIn={() => startAnimation(item.id)} onPressOut={() => stopAnimation(item.id)} style={cardStyle}>
+								{inner}
 							</Pressable>
 						);
 					}}
@@ -132,12 +214,12 @@ export default function Home() {
 			) : (
 				<View style={styles.nothingToShowContainer}>
 					<View>
-						<Text style={[styles.nothingToShowText, { color: themeColors.tertiaryColor, borderColor: themeColors.tertiaryColor, color: themeColors.tertiaryColor }]}>Start creating confirmations</Text>
-						<Text style={[styles.nothingToShowText, { color: themeColors.tertiaryColor, borderColor: themeColors.tertiaryColor, color: themeColors.tertiaryColor }]}>in the + tab</Text>
+						<Text style={[styles.nothingToShowText, { color: themeColors.tertiaryColor, borderColor: themeColors.tertiaryColor, color: themeColors.darkTextColor }]}>Start creating confirmations</Text>
+						<Text style={[styles.nothingToShowText, { color: themeColors.tertiaryColor, borderColor: themeColors.tertiaryColor, color: themeColors.darkTextColor }]}>in the + tab</Text>
 					</View>
 				</View>
 			)}
-			{data?.["current-confirmations"].length > 0 && !disableReset && (
+			{data?.["current-confirmations"]?.length > 0 && !disableReset && (
 				<Pressable
 					disabled={disableReset}
 					onPress={resetConfirmedHaptics}
