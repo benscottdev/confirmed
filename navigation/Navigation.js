@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Ionicons } from "@react-native-vector-icons/ionicons";
-import { ActivityIndicator, View, Easing } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { ActivityIndicator, View } from "react-native";
 import Home from "../screens/Home";
 import CreateNew from "../screens/CreateNew";
 import History from "../screens/History";
@@ -17,21 +17,11 @@ const Stack = createNativeStackNavigator();
 function TabNavigator() {
 	const context = useContext(DataContext);
 
-	const tabFadeSpec = {
-		animation: "timing",
-		config: {
-			duration: 400,
-			easing: Easing.out(Easing.cubic),
-		},
-	};
-
 	return (
 		<Tab.Navigator
 			screenOptions={({ route }) => ({
 				headerShown: false,
 				tabBarShowLabel: false,
-				animation: "fade",
-				transitionSpec: tabFadeSpec,
 				sceneStyle: { backgroundColor: context.themeColors.backgroundColor },
 				tabBarInactiveTintColor: context.themeColors.secondaryColor,
 				tabBarActiveTintColor: context.themeColors.textColor,
@@ -70,7 +60,7 @@ function TabNavigator() {
 				},
 			})}>
 			<Tab.Screen name="Home" component={Home} />
-			<Tab.Screen name="Create New" component={CreateNew} />
+			<Tab.Screen name="Create New" component={CreateNew} options={{ unmountOnBlur: true }} />
 			<Tab.Screen name="History" component={History} />
 			<Tab.Screen name="Settings" component={Settings} />
 		</Tab.Navigator>

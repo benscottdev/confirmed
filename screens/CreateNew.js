@@ -14,9 +14,8 @@ export default function CreateNew() {
 	const [newItemIcon, setNewItemIcon] = useState(null);
 
 	const getItemDimension = () => {
-		if (width < 375) return 75;
-		if (width < 430) return 75;
 		if (width < 600) return 75;
+		return 90;
 	};
 
 	const addNewConfirmation = () => {

@@ -3,7 +3,7 @@ import { DataContext } from "../context/DataContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useContext } from "react";
 import { useNavigation, useRoute, CommonActions } from "@react-navigation/native";
-import Ionicons from "@react-native-vector-icons/ionicons";
+import { Ionicons } from "@expo/vector-icons";
 
 export const Tutorial = () => {
 	const insets = useSafeAreaInsets();

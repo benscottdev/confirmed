@@ -1,31 +1,32 @@
 {
-  "cli": {
-    "version": ">= 12.0.0"
-  },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
-    "preview": {
-      "distribution": "internal",
-      "ios": {
-        "simulator": false
-      }
-    },
-    "production": {
-      "ios": {
-        "resourceClass": "m-medium"
-      },
-      "autoIncrement": true
-    }
-  },
-  "submit": {
-    "production": {
-      "ios": {
-        "appleId": "YOUR_APPLE_ID_EMAIL",
-        "ascAppId": "YOUR_APP_STORE_CONNECT_APP_ID"
-      }
-    }
-  }
+	"cli": {
+		"version": ">= 12.0.0",
+		"appVersionSource": "remote"
+	},
+	"build": {
+		"development": {
+			"developmentClient": true,
+			"distribution": "internal"
+		},
+		"preview": {
+			"distribution": "internal",
+			"ios": {
+				"simulator": false
+			}
+		},
+		"production": {
+			"ios": {
+				"resourceClass": "m-medium"
+			},
+			"autoIncrement": true
+		}
+	},
+	"submit": {
+		"production": {
+			"ios": {
+				"appleId": "benjamin_scottwrx@icloud.com",
+				"ascAppId": "6769571025"
+			}
+		}
+	}
 }
