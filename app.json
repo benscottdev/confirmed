@@ -14,7 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.lsdstudios.confirmed-app"
+      "bundleIdentifier": "com.lsdstudios.confirmed-app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -25,6 +28,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "0881a49b-6d92-46cf-97f6-4988bcaa29a4"
+      }
     }
   }
 }
